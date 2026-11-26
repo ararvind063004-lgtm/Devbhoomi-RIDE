@@ -711,7 +711,7 @@ with t3:
                         st.rerun()
 
 # ==========================================
-# FOOTER: 24x7 HELP & SUPPORT
+# FOOTER: 24x7 HELP & SUPPORT + TERMS
 # ==========================================
 st.divider()
 with st.expander("🆘 मदद / Help & Support (24x7)"):
@@ -733,7 +733,8 @@ with st.expander("🆘 मदद / Help & Support (24x7)"):
         "tel:112",
         use_container_width=True
     )
-    with st.expander("📜 नियम और शर्तें / Terms & Privacy Policy"):
+
+with st.expander("📜 नियम और शर्तें / Terms & Privacy Policy"):
     if is_hi:
         st.markdown("""
 **📜 नियम और शर्तें (Terms & Conditions):**
@@ -762,4 +763,3 @@ with st.expander("🆘 मदद / Help & Support (24x7)"):
 2. **Number Privacy:** Driver and passenger contact numbers are shared with each other only after booking confirmation. We never sell user data to third parties.
 3. **Data Removal:** Any driver or passenger can request deletion of their data anytime via the Support WhatsApp button above.
         """)
-
