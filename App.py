@@ -114,11 +114,12 @@ def haversine_km(lat1, lon1, lat2, lon2):
 # --- LOAD LIVE DATA ---
 drivers_db, trips_db, bookings_db = load_db()
 active_trips = [t for t in trips_db if t["status"] == "Active"]
+trips_by_id = {t["id"]: t for t in trips_db}
 
 if "logged_in_driver" not in st.session_state:
     st.session_state.logged_in_driver = None
-if "my_bookings" not in st.session_state:
-    st.session_state.my_bookings = []
+if "last_p_phone" not in st.session_state:
+    st.session_state.last_p_phone = ""
 
 # --- LANGUAGE SWITCH & HEADER ---
 c_lang, c_ref = st.columns([3, 1])
@@ -131,8 +132,9 @@ if c_ref.button("🔄 रिफ्रेश" if is_hi else "🔄 Refresh"):
 st.title("🏔️ देवभूमि राइड" if is_hi else "🏔️ DevBhoomi Ride")
 st.caption("उत्तराखंड के हर गाँव से बाज़ार तक — टैक्सी, बाइक और स्कूटी" if is_hi else "From every Uttarakhand village to city — Cab, Bike & Scooty")
 
-t1, t2, t3 = st.tabs([
+t1, t_my, t2, t3 = st.tabs([
     "🔍 सीट बुक करें" if is_hi else "🔍 Book Ride",
+    "🎫 मेरी बुकिंग" if is_hi else "🎫 My Bookings",
     "📍 लाइव लोकेशन" if is_hi else "📍 Live Track",
     "👨‍✈️ ड्राइवर पैनल" if is_hi else "👨‍✈️ Driver Panel"
 ])
@@ -240,51 +242,74 @@ with t1:
 
                         chosen = st.selectbox("सीट चुनें:" if is_hi else "Choose Seat:", avail_seats, key=f"sel_{trip['id']}")
                         p_user = st.text_input("आपका नाम" if is_hi else "Your Name", key=f"nm_{trip['id']}")
-                        p_phone = st.text_input("आपका मोबाइल नंबर" if is_hi else "Mobile Number", key=f"ph_{trip['id']}")
+                        p_phone = st.text_input("आपका 10 अंकों का मोबाइल नंबर" if is_hi else "10-digit Mobile Number", key=f"ph_{trip['id']}")
 
                         btn_lbl = f"✅ बुक करें (किराया ₹{fare} + शुल्क ₹{fee})" if is_hi else f"✅ Confirm (Fare ₹{fare} + Fee ₹{fee})"
                         if st.button(btn_lbl, key=f"bk_{trip['id']}"):
-                            if not p_user or not p_phone:
-                                st.error("कृपया अपना नाम और मोबाइल नंबर भरें।" if is_hi else "Please enter name and mobile number.")
+                            if not p_user.strip() or len(p_phone.strip()) < 10:
+                                st.error("कृपया सही नाम और 10 अंकों का मोबाइल नंबर भरें।" if is_hi else "Please enter name and 10-digit mobile number.")
                             else:
                                 new_seats = dict(trip["seats"])
                                 new_seats[chosen] = "Booked"
                                 new_bid = (max([b["bid"] for b in bookings_db]) + 1) if bookings_db else 1
                                 b_data = {
-                                    "bid": new_bid, "trip_id": trip["id"], "passenger": p_user,
-                                    "seat": chosen, "vehicle": trip["vehicle"], "route": f"{p_stop} ➔ {d_stop}",
+                                    "bid": new_bid, "trip_id": trip["id"],
+                                    "passenger": f"{p_user.strip()} ({p_phone.strip()})",
+                                    "seat": chosen, "vehicle": trip["vehicle"],
+                                    "route": f"{p_stop} ➔ {d_stop}",
                                     "fare": fare, "fee": fee, "driver": trip["driver"], "phone": trip["phone"]
                                 }
                                 with st.spinner("बुकिंग सेव हो रही है..." if is_hi else "Saving booking..."):
                                     post_db({"action": "update_trip", "id": trip["id"], "seats": new_seats})
                                     post_db({"action": "add_booking", "booking": b_data})
-                                st.session_state.my_bookings.append(new_bid)
-                                st.success("🎉 बुकिंग कन्फर्म! ड्राइवर का नंबर नीचे दिख रहा है।" if is_hi else "🎉 Confirmed!")
+                                st.session_state.last_p_phone = p_phone.strip()
+                                st.success("🎉 बुकिंग कन्फर्म हो गई! ऊपर '🎫 मेरी बुकिंग' टैब में अपनी टिकट और ड्राइवर का नंबर कभी भी देख सकते हैं।" if is_hi else "🎉 Confirmed! Check '🎫 My Bookings' anytime.")
                                 st.rerun()
 
-    shown_bookings = [b for b in bookings_db if b["bid"] in st.session_state.my_bookings]
-    if shown_bookings:
-        st.subheader("🔓 आपकी बुकिंग्स (ड्राइवर की जानकारी)" if is_hi else "🔓 Your Bookings")
-        for b in reversed(shown_bookings):
-            with st.container(border=True):
-                if b["status"] == "Cancelled":
-                    st.error(f"❌ रद्द की गई — {b['vehicle']} | सीट: {b['seat']}" if is_hi else f"❌ Cancelled — {b['vehicle']}")
-                else:
-                    st.write(f"**{b['vehicle']}** | सीट: **{b['seat']}** | {b['route']}")
-                    st.write(f"ड्राइवर को देना है: **₹{b['fare']}** | बुकिंग शुल्क: ₹{b['fee']}")
-                    st.markdown(f"👤 **{b['driver']}** | 📞 **{b['phone']}** | [💬 व्हाट्सएप]({b['wa']})")
-                    if st.button("❌ सीट रद्द करें" if is_hi else "❌ Cancel Seat", key=f"cnl_{b['bid']}"):
-                        with st.spinner("रद्द हो रहा है..."):
-                            post_db({"action": "cancel_booking", "bid": b["bid"]})
-                            for t in trips_db:
-                                if t["id"] == b["trip_id"]:
-                                    upd_seats = dict(t["seats"])
+# ==========================================
+# TAB 2: MY BOOKINGS (CHECK ANYTIME BY PHONE)
+# ==========================================
+with t_my:
+    st.subheader("🎫 अपनी बुक की हुई टिकट देखें" if is_hi else "🎫 Check Your Booked Tickets")
+    chk_phone = st.text_input(
+        "बुकिंग के समय डाला गया मोबाइल नंबर लिखें:" if is_hi else "Enter Mobile Number used for booking:",
+        value=st.session_state.last_p_phone,
+        placeholder="जैसे: 9876543210"
+    ).strip()
+
+    if len(chk_phone) >= 10:
+        my_list = [b for b in bookings_db if chk_phone in b["passenger"]]
+        if not my_list:
+            st.info("इस नंबर पर कोई बुकिंग नहीं मिली।" if is_hi else "No bookings found for this number.")
+        else:
+            for b in reversed(my_list):
+                t_info = trips_by_id.get(b["trip_id"], {})
+                t_time = t_info.get("time", "समय उपलब्ध नहीं")
+                t_status = t_info.get("status", "Active")
+                with st.container(border=True):
+                    if b["status"] == "Cancelled":
+                        st.error(f"❌ रद्द की गई — {b['vehicle']} | सीट: {b['seat']}" if is_hi else f"❌ Cancelled — {b['vehicle']} | Seat: {b['seat']}")
+                    else:
+                        if t_status == "Cancelled":
+                            st.warning("⚠️ ध्यान दें: ड्राइवर ने यह ट्रिप रद्द कर दी है।" if is_hi else "⚠️ Note: Driver cancelled this trip.")
+                        else:
+                            st.success(f"✅ कन्फर्म टिकट — सीट: **{b['seat']}** | 🕒 समय: **{t_time}**" if is_hi else f"✅ Confirmed — Seat: **{b['seat']}** | 🕒 Time: **{t_time}**")
+                        st.write(f"🚕 **{b['vehicle']}** | 🛣️ {b['route']}")
+                        st.write(f"💰 ड्राइवर को देना है: **₹{b['fare']}** | बुकिंग शुल्क: ₹{b['fee']}" if is_hi else f"💰 Pay Driver: **₹{b['fare']}** | Fee: ₹{b['fee']}")
+                        st.markdown(f"👤 **{b['driver']}** | 📞 **{b['phone']}** | [💬 व्हाट्सएप]({b['wa']})" if is_hi else f"👤 **{b['driver']}** | 📞 **{b['phone']}** | [💬 WhatsApp]({b['wa']})")
+                        if st.button("❌ सीट रद्द करें" if is_hi else "❌ Cancel Seat", key=f"cnl_{b['bid']}"):
+                            with st.spinner("रद्द हो रहा है..."):
+                                post_db({"action": "cancel_booking", "bid": b["bid"]})
+                                if b["trip_id"] in trips_by_id:
+                                    upd_seats = dict(trips_by_id[b["trip_id"]]["seats"])
                                     upd_seats[b["seat"]] = "Available"
-                                    post_db({"action": "update_trip", "id": t["id"], "seats": upd_seats})
-                        st.rerun()
+                                    post_db({"action": "update_trip", "id": b["trip_id"], "seats": upd_seats})
+                            st.rerun()
+    else:
+        st.caption("अपनी पुरानी या कल की बुकिंग देखने के लिए ऊपर 10 अंकों का मोबाइल नंबर डालें।" if is_hi else "Enter your 10-digit mobile number to view your tickets anytime.")
 
 # ==========================================
-# TAB 2: LIVE TRACKING
+# TAB 3: LIVE TRACKING
 # ==========================================
 with t2:
     st.subheader("📍 गाड़ी अभी कहाँ पहुँची है?" if is_hi else "📍 Live Tracking")
@@ -312,7 +337,7 @@ with t2:
                 st.markdown(f"⚪ {s}")
 
 # ==========================================
-# TAB 3: DRIVER PANEL (LIVE GOOGLE SHEETS)
+# TAB 4: DRIVER PANEL (LIVE GOOGLE SHEETS)
 # ==========================================
 with t3:
     if st.session_state.logged_in_driver is None:
