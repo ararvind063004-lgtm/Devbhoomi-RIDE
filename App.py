@@ -8,6 +8,7 @@ from urllib.parse import quote
 st.set_page_config(page_title="DevBhoomi Ride", page_icon="🏔️", layout="centered")
 
 DB_URL = "https://script.google.com/macros/s/AKfycby3A2XJ0_hrgcs0IRy-pnJzQWmXmwrndsQXZEN73EjNoKKlSIW83dxnjqGp4L6yZ15heQ/exec"
+SUPPORT_WHATSAPP = "919456136422"  # <-- Yahan 91 ke saath apna Support WhatsApp number daalein
 
 # --- GOOGLE SHEETS DATABASE FUNCTIONS ---
 @st.cache_data(ttl=15)
@@ -708,3 +709,27 @@ with t3:
                             post_db({"action": "update_trip", "id": st_trip["id"], "status": "Cancelled"})
                         st.error("चारधाम ट्रिप हटा दी गई है।")
                         st.rerun()
+
+# ==========================================
+# FOOTER: 24x7 HELP & SUPPORT
+# ==========================================
+st.divider()
+with st.expander("🆘 मदद / Help & Support (24x7)"):
+    st.caption(
+        "किसी भी शिकायत, गाड़ी में छूटे सामान, या ड्राइवर PIN रीसेट के लिए नीचे क्लिक करें:"
+        if is_hi else
+        "For complaints, lost items, or Driver PIN reset, contact DevBhoomi Support:"
+    )
+    sup_msg = quote("नमस्ते DevBhoomi Ride Support, मुझे मदद चाहिए:")
+    sc1, sc2 = st.columns(2)
+    sc1.link_button(
+        "💬 DevBhoomi Support (WhatsApp)" if is_hi else "💬 WhatsApp Support",
+        f"https://wa.me/{SUPPORT_WHATSAPP}?text={sup_msg}",
+        type="primary",
+        use_container_width=True
+    )
+    sc2.link_button(
+        "🚨 Emergency Police / SDRF (112)" if is_hi else "🚨 Emergency SOS (112)",
+        "tel:112",
+        use_container_width=True
+    )
