@@ -2,6 +2,7 @@ import streamlit as st
 import requests
 import math
 import json
+import re
 from urllib.parse import quote
 
 st.set_page_config(page_title="DevBhoomi Ride", page_icon="🏔️", layout="centered")
@@ -267,7 +268,7 @@ with t1:
                                 st.rerun()
 
 # ==========================================
-# TAB 2: MY BOOKINGS (CHECK ANYTIME BY PHONE)
+# TAB 2: MY BOOKINGS (PASSENGER VIEW)
 # ==========================================
 with t_my:
     st.subheader("🎫 अपनी बुक की हुई टिकट देखें" if is_hi else "🎫 Check Your Booked Tickets")
@@ -337,7 +338,7 @@ with t2:
                 st.markdown(f"⚪ {s}")
 
 # ==========================================
-# TAB 4: DRIVER PANEL (LIVE GOOGLE SHEETS)
+# TAB 4: DRIVER PANEL (LIVE GOOGLE SHEETS + BOOKINGS)
 # ==========================================
 with t3:
     if st.session_state.logged_in_driver is None:
@@ -393,9 +394,10 @@ with t3:
             st.session_state.logged_in_driver = None
             st.rerun()
 
-        d1, d2 = st.tabs([
-            "➕ आज की ट्रिप डालें (फ्री)" if is_hi else "➕ Add Today's Trip (Free)",
-            "📡 लोकेशन अपडेट / ट्रिप रद्द करें" if is_hi else "📡 Update Location / Cancel"
+        d1, d_bk, d2 = st.tabs([
+            "➕ ट्रिप डालें" if is_hi else "➕ Add Trip",
+            "📋 मेरी बुकिंग्स" if is_hi else "📋 My Bookings",
+            "📡 लोकेशन / रद्द" if is_hi else "📡 Location / Cancel"
         ])
 
         with d1:
@@ -437,6 +439,35 @@ with t3:
                         st.rerun()
                     else:
                         st.error("कृपया अपना गाँव या रूट ज़रूर लिखें।" if is_hi else "Please enter route stops.")
+
+        with d_bk:
+            st.subheader("📋 आपकी गाड़ी की सवारियाँ (Live Bookings)" if is_hi else "📋 Your Passenger Bookings")
+            drv_bookings = [b for b in bookings_db if b["phone"] == drv["phone"]]
+            conf_list = [b for b in drv_bookings if b["status"] == "Confirmed"]
+            canc_list = [b for b in drv_bookings if b["status"] == "Cancelled"]
+
+            m1, m2 = st.columns(2)
+            m1.metric("✅ कन्फर्म सवारियाँ" if is_hi else "✅ Confirmed", len(conf_list))
+            m2.metric("❌ रद्द की गई" if is_hi else "❌ Cancelled", len(canc_list))
+
+            if not drv_bookings:
+                st.info("अभी आपकी गाड़ी के लिए कोई बुकिंग नहीं आई है।" if is_hi else "No bookings yet.")
+            else:
+                for b in reversed(drv_bookings):
+                    t_info = trips_by_id.get(b["trip_id"], {})
+                    t_time = t_info.get("time", "")
+                    ph_match = re.search(r"(\d{10})", b["passenger"])
+                    p_ph = ph_match.group(1) if ph_match else ""
+                    p_wa = f"https://wa.me/91{p_ph}" if p_ph else ""
+                    with st.container(border=True):
+                        if b["status"] == "Cancelled":
+                            st.error(f"❌ सवारी ने सीट रद्द कर दी — सीट: **{b['seat']}** | {b['passenger']}" if is_hi else f"❌ Cancelled — Seat: **{b['seat']}** | {b['passenger']}")
+                        else:
+                            st.success(f"✅ कन्फर्म — सीट: **{b['seat']}** | 🕒 {t_time}" if is_hi else f"✅ Confirmed — Seat: **{b['seat']}** | 🕒 {t_time}")
+                            st.write(f"👤 **सवारी:** {b['passenger']}")
+                            st.write(f"🛣️ **कहाँ से कहाँ तक:** {b['route']} | 💰 **किराया:** ₹{b['fare']}")
+                            if p_wa:
+                                st.markdown(f"📞 **{p_ph}** | [💬 सवारी को व्हाट्सएप करें]({p_wa})" if is_hi else f"📞 **{p_ph}** | [💬 WhatsApp Passenger]({p_wa})")
 
         with d2:
             my_trips = [t for t in active_trips if t["phone"] == drv["phone"]]
