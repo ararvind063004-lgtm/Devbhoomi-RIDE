@@ -20,12 +20,18 @@ def load_db():
             for d in raw.get("drivers", []):
                 ph = str(d.get("phone", "")).strip()
                 if ph:
+                    raw_lic = str(d.get("license", ""))
+                    if " | PIN:" in raw_lic:
+                        lic_part, pin_part = raw_lic.split(" | PIN:", 1)
+                        pin_val = pin_part.strip()
+                    else:
+                        lic_part, pin_val = raw_lic, "1234"
                     drivers[ph] = {
                         "phone": ph, "name": str(d.get("name", "")),
                         "address": str(d.get("address", "")),
                         "vehicle_type": str(d.get("vehicle_type", "Cab / Shared")),
                         "vehicle": str(d.get("vehicle", "")),
-                        "license": str(d.get("license", "")), "reg_paid": True
+                        "license": lic_part.strip(), "pin": pin_val, "reg_paid": True
                     }
             trips = []
             for t in raw.get("trips", []):
@@ -152,7 +158,6 @@ t1, t_my, t2, t3 = st.tabs([
 # TAB 1: PASSENGER SEARCH & BOOKING
 # ==========================================
 with t1:
-    # Prominent WhatsApp Alert Banner right after booking
     if st.session_state.latest_wa_alert:
         wa_info = st.session_state.latest_wa_alert
         with st.container(border=True):
@@ -395,11 +400,11 @@ with t2:
                 st.markdown(f"⚪ {s}")
 
 # ==========================================
-# TAB 4: DRIVER PANEL (LIVE GOOGLE SHEETS + BOOKINGS)
+# TAB 4: DRIVER PANEL (4-DIGIT PIN PROTECTED)
 # ==========================================
 with t3:
     if st.session_state.logged_in_driver is None:
-        st.subheader("👨‍✈️ ड्राइवर रजिस्ट्रेशन / प्रवेश" if is_hi else "👨‍✈️ Driver Registration / Access")
+        st.subheader("👨‍✈️ ड्राइवर रजिस्ट्रेशन / लॉगिन" if is_hi else "👨‍✈️ Driver Registration / Login")
         ph_in = st.text_input(
             "अपना 10 अंकों का मोबाइल नंबर डालें:" if is_hi else "Enter your 10-digit Mobile Number:",
             placeholder="जैसे: 9876543210"
@@ -407,10 +412,15 @@ with t3:
 
         if len(ph_in) >= 10:
             if ph_in in drivers_db:
-                st.success("✅ आपका नंबर पहले से रजिस्टर्ड है!" if is_hi else "✅ Already registered!")
-                if st.button("🚀 आगे बढ़ें (ट्रिप पैनल खोलें)" if is_hi else "🚀 Continue to Trip Panel"):
-                    st.session_state.logged_in_driver = drivers_db[ph_in]
-                    st.rerun()
+                st.success("✅ आपका नंबर पहले से रजिस्टर्ड है! लॉगिन के लिए अपना 4 अंकों का PIN डालें:" if is_hi else "✅ Registered! Enter your 4-digit PIN:")
+                with st.form("driver_login_form"):
+                    pin_in = st.text_input("🔐 4 अंकों का PIN" if is_hi else "🔐 4-Digit PIN", type="password", max_chars=4)
+                    if st.form_submit_button("🚀 लॉगिन करें (ट्रिप पैनल खोलें)" if is_hi else "🚀 Login to Trip Panel"):
+                        if pin_in.strip() == drivers_db[ph_in]["pin"]:
+                            st.session_state.logged_in_driver = drivers_db[ph_in]
+                            st.rerun()
+                        else:
+                            st.error("❌ गलत PIN! कृपया सही 4 अंकों का PIN डालें।" if is_hi else "❌ Wrong PIN! Please try again.")
             else:
                 st.info("📝 नया ड्राइवर रजिस्ट्रेशन (सिर्फ़ एक बार ₹99, फिर रोज़ की ट्रिप फ्री)" if is_hi else "📝 New Driver Registration (₹99 one-time)")
                 with st.form("driver_reg_form"):
@@ -421,6 +431,7 @@ with t3:
                     r_vtype = "Bike / Scooty" if r_vdisp in ["बाइक / स्कूटी", "Bike / Scooty"] else "Cab / Shared"
                     r_veh = st.text_input("गाड़ी का नाम और नंबर" if is_hi else "Vehicle Name & Number", placeholder="Bolero UK 04 TA 9988")
                     r_dl = st.text_input("ड्राइविंग लाइसेंस नंबर (DL No.)" if is_hi else "Driving License Number", placeholder="UK0420200012345")
+                    r_pin = st.text_input("🔐 अपना 4 अंकों का सीक्रेट PIN बनाएं (जैसे: 2580)" if is_hi else "🔐 Create 4-Digit Secret PIN", type="password", max_chars=4)
 
                     st.warning("💳 **रजिस्ट्रेशन शुल्क: ₹99 (केवल एक बार)**" if is_hi else "💳 **Registration Fee: ₹99 (One-Time)**")
                     paid_ok = st.checkbox("✅ मैंने ₹99 रजिस्ट्रेशन शुल्क जमा कर दिया है (Demo)" if is_hi else "✅ Paid ₹99 Registration Fee (Demo)")
@@ -428,16 +439,23 @@ with t3:
                     if st.form_submit_button("🚀 रजिस्ट्रेशन पूरा करें और ट्रिप डालें" if is_hi else "🚀 Register & Open Trip Panel"):
                         if not (r_name and r_addr and r_veh and r_dl):
                             st.error("कृपया सभी जानकारी भरें।" if is_hi else "Please fill all fields.")
+                        elif not (len(r_pin.strip()) == 4 and r_pin.strip().isdigit()):
+                            st.error("कृपया 4 अंकों का नंबर वाला PIN बनाएं (जैसे 2580)।" if is_hi else "Please create a 4-digit numeric PIN.")
                         elif not paid_ok:
                             st.error("कृपया ₹99 शुल्क कन्फर्म करें।" if is_hi else "Please confirm ₹99 fee.")
                         else:
-                            new_drv = {
+                            pin_clean = r_pin.strip()
+                            new_drv_db = {
                                 "name": r_name.strip(), "phone": ph_in, "address": r_addr.strip(),
-                                "vehicle_type": r_vtype, "vehicle": r_veh.strip(), "license": r_dl.strip(), "reg_paid": True
+                                "vehicle_type": r_vtype, "vehicle": r_veh.strip(),
+                                "license": f"{r_dl.strip()} | PIN:{pin_clean}", "reg_paid": True
                             }
                             with st.spinner("रजिस्ट्रेशन सेव हो रहा है..."):
-                                post_db({"action": "add_driver", "driver": new_drv})
-                            st.session_state.logged_in_driver = new_drv
+                                post_db({"action": "add_driver", "driver": new_drv_db})
+                            new_drv_session = dict(new_drv_db)
+                            new_drv_session["license"] = r_dl.strip()
+                            new_drv_session["pin"] = pin_clean
+                            st.session_state.logged_in_driver = new_drv_session
                             st.success("🎉 रजिस्ट्रेशन सफल! अब आप रोज़ फ्री में ट्रिप डाल सकते हैं।" if is_hi else "🎉 Registered!")
                             st.rerun()
         else:
