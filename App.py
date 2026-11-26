@@ -733,3 +733,33 @@ with st.expander("🆘 मदद / Help & Support (24x7)"):
         "tel:112",
         use_container_width=True
     )
+    with st.expander("📜 नियम और शर्तें / Terms & Privacy Policy"):
+    if is_hi:
+        st.markdown("""
+**📜 नियम और शर्तें (Terms & Conditions):**
+1. **प्लेटफ़ॉर्म की भूमिका:** DevBhoomi Ride केवल एक ऑनलाइन बुकिंग प्लेटफ़ॉर्म है जो यात्रियों और लोकल ड्राइवरों को आपस में जोड़ता है। गाड़ी की कंडीशन, वैध लाइसेंस (DL), कागज़ात और सुरक्षित ड्राइविंग की पूरी ज़िम्मेदारी संबंधित ड्राइवर की होगी।
+2. **किराया और यात्रा नियम:** लोकल या चारधाम यात्रा का किराया, टोल, पार्किंग और पहाड़ों पर चढ़ाई के समय AC बंद रहने जैसे नियम यात्री और ड्राइवर के बीच लागू होंगे।
+3. **रद्द करना (Cancellation):** सीट या ट्रिप रद्द करने पर कृपया ऐप में तुरंत रद्द करें और सामने वाले को व्हाट्सएप पर सूचित करें। बार-बार फर्जी बुकिंग करने पर नंबर ब्लॉक किया जा सकता है।
+4. **सुरक्षा और सामान:** यात्रा के दौरान अपने कीमती सामान की ज़िम्मेदारी यात्री की स्वयं की होगी। बाइक/स्कूटी राइड के लिए हेलमेट अनिवार्य है। किसी भी आपात स्थिति में **112** पर कॉल करें।
+
+---
+**🔒 गोपनीयता नीति (Privacy Policy):**
+1. **डेटा संग्रह:** हम केवल वही जानकारी लेते हैं जो बुकिंग के लिए ज़रूरी है (नाम, मोबाइल नंबर, और ड्राइवरों के लिए गाड़ी नंबर, पता व लाइसेंस)।
+2. **नंबर की सुरक्षा:** यात्री और ड्राइवर का मोबाइल नंबर केवल बुकिंग कन्फर्म होने के बाद ही एक-दूसरे को दिखता है। हम आपका डेटा किसी भी बाहरी कंपनी को नहीं बेचते।
+3. **डेटा हटाना:** यदि कोई ड्राइवर या यात्री अपना डेटा हटवाना चाहता है, तो ऊपर दिए गए Support WhatsApp पर संदेश भेजकर हटवा सकता है।
+        """)
+    else:
+        st.markdown("""
+**📜 Terms & Conditions:**
+1. **Platform Role:** DevBhoomi Ride is only an online booking platform connecting passengers and local drivers. Vehicle condition, valid Driving License, documents, and safe driving are the sole responsibility of the driver.
+2. **Fare & Travel Rules:** Local or Char Dham fares, tolls, parking, and mountain rules (such as AC off on steep climbs) apply directly between the passenger and driver.
+3. **Cancellations:** If cancelling a seat or trip, please cancel immediately in the app and inform via WhatsApp. Repeated fake bookings may lead to number blocking.
+4. **Safety & Luggage:** Passengers are responsible for their own luggage and valuables. Helmets are mandatory for Bike/Scooty rides. Call **112** in any emergency.
+
+---
+**🔒 Privacy Policy:**
+1. **Data Collection:** We only collect details required for booking (Name, Mobile Number, and Vehicle/Address/DL details for drivers).
+2. **Number Privacy:** Driver and passenger contact numbers are shared with each other only after booking confirmation. We never sell user data to third parties.
+3. **Data Removal:** Any driver or passenger can request deletion of their data anytime via the Support WhatsApp button above.
+        """)
+
