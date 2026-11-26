@@ -321,4 +321,92 @@ with t3:
                     if not (r_name and r_phone and r_addr and r_veh and r_dl):
                         st.error("कृपया सभी जानकारी भरें।" if is_hi else "Please fill all fields.")
                     elif r_phone.strip() in st.session_state.drivers:
-                        st.warning("यह मोबाइल नंबर पहले से रजिस्टर्ड है! कृपया लॉगिन करें।" if is_hi else "Already
+                        st.warning("यह मोबाइल नंबर पहले से रजिस्टर्ड है! कृपया लॉगिन करें।" if is_hi else "Already registered! Please login.")
+                    elif not paid_confirm:
+                        st.error("रजिस्ट्रेशन के लिए ₹99 शुल्क कन्फर्म करना ज़रूरी है।" if is_hi else "Please confirm ₹99 fee.")
+                    else:
+                        new_drv = {
+                            "name": r_name.strip(), "phone": r_phone.strip(), "address": r_addr.strip(),
+                            "vehicle_type": r_vtype, "vehicle": r_veh.strip(), "license": r_dl.strip(), "reg_paid": True
+                        }
+                        st.session_state.drivers[r_phone.strip()] = new_drv
+                        st.session_state.logged_in_driver = new_drv
+                        st.success("🎉 बधाई हो! आपका रजिस्ट्रेशन हो गया है। अब आप रोज़ फ्री में ट्रिप डाल सकते हैं।" if is_hi else "🎉 Registration Complete!")
+                        st.rerun()
+    else:
+        drv = st.session_state.logged_in_driver
+        c_top1, c_top2 = st.columns([3, 1])
+        c_top1.success(f"👤 स्वागत है, **{drv['name']}** ({drv['vehicle']}) ✅" if is_hi else f"👤 Welcome, **{drv['name']}** ✅")
+        if c_top2.button("🚪 लॉगआउट" if is_hi else "🚪 Logout"):
+            st.session_state.logged_in_driver = None
+            st.rerun()
+
+        d1, d2 = st.tabs([
+            "➕ आज की ट्रिप डालें (फ्री)" if is_hi else "➕ Add Today's Trip (Free)",
+            "📡 लोकेशन अपडेट / ट्रिप रद्द करें" if is_hi else "📡 Update Location / Cancel"
+        ])
+
+        with d1:
+            start_search = st.text_input(
+                "आपकी गाड़ी अभी किस गाँव / बाज़ार में है? (खोजें)" if is_hi else "Current Village/Market (Search)",
+                placeholder="जैसे: Kausani, Someshwar, Gairsain..."
+            )
+            drv_lat, drv_lon, drv_start_name = None, None, start_search.strip()
+            if len(start_search.strip()) >= 3:
+                s_res = search_uk_village(start_search)
+                if s_res:
+                    s_opts = {r["label"]: r for r in s_res}
+                    s_pick = st.selectbox("अपना सही गाँव चुनें:" if is_hi else "Select exact village:", list(s_opts.keys()), key="drv_loc")
+                    drv_lat, drv_lon, drv_start_name = s_opts[s_pick]["lat"], s_opts[s_pick]["lon"], s_opts[s_pick]["name"]
+
+            with st.form("add_trip"):
+                d_stops = st.text_input("आगे के स्टॉप (कॉमा लगाकर लिखें)" if is_hi else "Route Stops (comma separated)", placeholder="जैसे: Someshwar, Kosi, Almora")
+                c1, c2 = st.columns(2)
+                d_time = c1.text_input("निकलने का समय" if is_hi else "Departure Time", placeholder="09:00 AM")
+                d_fare = c2.number_input("आज का किराया (₹)" if is_hi else "Today's Fare (₹)", min_value=20, value=150, step=10)
+                booked_cnt = st.slider("टैक्सी के लिए: कितनी सीटें पहले से बुक हैं?" if is_hi else "Seats already booked", 0, 6, 3)
+
+                if st.form_submit_button("🚀 गाड़ी ऑनलाइन डालें" if is_hi else "🚀 Publish Trip"):
+                    if d_stops or drv_start_name:
+                        s_list = [x.strip() for x in d_stops.split(",") if x.strip()]
+                        if drv_start_name and (not s_list or drv_start_name.lower() != s_list[0].lower()):
+                            s_list.insert(0, drv_start_name)
+                        if drv["vehicle_type"] == "Bike / Scooty":
+                            s_map = {"Pillion-Seat": "Available"}
+                        else:
+                            names = ["Front-1", "Mid-1", "Mid-2", "Mid-3", "Back-1", "Back-2", "Back-3"]
+                            s_map = {s: ("Booked" if i < booked_cnt else "Available") for i, s in enumerate(names)}
+                        st.session_state.trips.append({
+                            "id": len(st.session_state.trips) + 1, "driver": drv["name"], "phone": drv["phone"],
+                            "vehicle_type": drv["vehicle_type"], "vehicle": drv["vehicle"], "stops": s_list,
+                            "lat": drv_lat, "lon": drv_lon, "time": d_time, "full_fare": d_fare,
+                            "current_stop_idx": 0, "delay_mins": 0, "delay_reason": "समय पर",
+                            "status": "Active", "seats": s_map
+                        })
+                        st.success("✅ आपकी गाड़ी लाइव हो गई है!" if is_hi else "✅ Trip is now live!")
+                        st.rerun()
+                    else:
+                        st.error("कृपया अपना गाँव या रूट ज़रूर लिखें।" if is_hi else "Please enter route stops.")
+
+        with d2:
+            my_trips = [t for t in active_trips if t["phone"] == drv["phone"]]
+            if not my_trips:
+                st.info("आपकी अभी कोई सक्रिय ट्रिप नहीं है।" if is_hi else "You have no active trips.")
+            else:
+                d_map = {f"{t['vehicle']} ({t['stops'][0]} ➔ {t['stops'][-1]})": t for t in my_trips}
+                st_trip = d_map[st.selectbox("अपनी ट्रिप चुनें:" if is_hi else "Select Your Trip:", list(d_map.keys()))]
+                n_stop = st.selectbox("अभी कहाँ पहुँचे हैं?" if is_hi else "Current Location:", st_trip["stops"], index=st_trip["current_stop_idx"])
+                n_delay = st.radio("क्या गाड़ी लेट है?" if is_hi else "Delay:", [0, 10, 20, 30], format_func=lambda x: ("समय पर" if is_hi else "On Time") if x == 0 else f"+{x} min", horizontal=True)
+                n_reason = st.text_input("लेट होने का कारण" if is_hi else "Delay Reason", value=st_trip["delay_reason"])
+
+                col_u, col_c = st.columns(2)
+                if col_u.button("📡 लोकेशन अपडेट करें" if is_hi else "📡 Update Location"):
+                    st_trip["current_stop_idx"] = st_trip["stops"].index(n_stop)
+                    st_trip["delay_mins"] = n_delay
+                    st_trip["delay_reason"] = ("समय पर" if is_hi else "On Time") if n_delay == 0 else n_reason
+                    st.success("✅ लोकेशन अपडेट हो गई!")
+                    st.rerun()
+                if col_c.button("🚫 पूरी ट्रिप रद्द करें" if is_hi else "🚫 Cancel Trip"):
+                    st_trip["status"] = "Cancelled"
+                    st.error("ट्रिप रद्द कर दी गई है।")
+                    st.rerun()
