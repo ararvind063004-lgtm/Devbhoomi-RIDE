@@ -54,7 +54,11 @@ def load_db():
                 if not b.get("bid"):
                     continue
                 ph = str(b.get("phone", "")).strip()
-                msg = quote(f"Namaste {b.get('driver','')} ji, DevBhoomi Ride par {b.get('seat','')} book ki hai ({b.get('route','')}). Naam: {b.get('passenger','')}")
+                msg = quote(
+                    f"नमस्ते {b.get('driver','')} जी, मैंने DevBhoomi Ride पर सीट बुक की है:\n"
+                    f"सीट: {b.get('seat','')}\nरूट: {b.get('route','')}\n"
+                    f"किराया: ₹{b.get('fare','')}\nसवारी: {b.get('passenger','')}"
+                )
                 bookings.append({
                     "bid": int(b["bid"]), "trip_id": int(b["trip_id"]),
                     "passenger": str(b.get("passenger", "")), "seat": str(b.get("seat", "")),
@@ -121,6 +125,10 @@ if "logged_in_driver" not in st.session_state:
     st.session_state.logged_in_driver = None
 if "last_p_phone" not in st.session_state:
     st.session_state.last_p_phone = ""
+if "latest_wa_alert" not in st.session_state:
+    st.session_state.latest_wa_alert = None
+if "cancel_wa_alert" not in st.session_state:
+    st.session_state.cancel_wa_alert = None
 
 # --- LANGUAGE SWITCH & HEADER ---
 c_lang, c_ref = st.columns([3, 1])
@@ -144,6 +152,25 @@ t1, t_my, t2, t3 = st.tabs([
 # TAB 1: PASSENGER SEARCH & BOOKING
 # ==========================================
 with t1:
+    # Prominent WhatsApp Alert Banner right after booking
+    if st.session_state.latest_wa_alert:
+        wa_info = st.session_state.latest_wa_alert
+        with st.container(border=True):
+            st.success(
+                f"🎉 बुकिंग कन्फर्म हो गई! सीट: **{wa_info['seat']}** | ड्राइवर: **{wa_info['driver']}** (📞 {wa_info['phone']})"
+                if is_hi else
+                f"🎉 Booking Confirmed! Seat: **{wa_info['seat']}** | Driver: **{wa_info['driver']}** (📞 {wa_info['phone']})"
+            )
+            st.link_button(
+                "📲 ड्राइवर को व्हाट्सएप पर बुकिंग भेजें (तुरंत सूचित करें)" if is_hi else "📲 Send Booking Alert to Driver on WhatsApp",
+                wa_info["wa_url"],
+                type="primary",
+                use_container_width=True
+            )
+            if st.button("✖️ बंद करें" if is_hi else "✖️ Dismiss", key="dismiss_wa"):
+                st.session_state.latest_wa_alert = None
+                st.rerun()
+
     f_opts = ["सभी", "टैक्सी / शेयरिंग", "बाइक / स्कूटी"] if is_hi else ["All", "Cab / Shared", "Bike / Scooty"]
     v_disp = st.radio("क्या चाहिए?" if is_hi else "Vehicle Type:", f_opts, horizontal=True)
     v_map = {
@@ -263,14 +290,36 @@ with t1:
                                 with st.spinner("बुकिंग सेव हो रही है..." if is_hi else "Saving booking..."):
                                     post_db({"action": "update_trip", "id": trip["id"], "seats": new_seats})
                                     post_db({"action": "add_booking", "booking": b_data})
+                                wa_msg = quote(
+                                    f"नमस्ते {trip['driver']} जी, मैंने DevBhoomi Ride पर नई सीट बुक की है:\n"
+                                    f"सीट: {chosen}\nरूट: {p_stop} से {d_stop}\nसमय: {trip['time']}\n"
+                                    f"किराया: ₹{fare}\nसवारी: {p_user.strip()} ({p_phone.strip()})"
+                                )
                                 st.session_state.last_p_phone = p_phone.strip()
-                                st.success("🎉 बुकिंग कन्फर्म हो गई! ऊपर '🎫 मेरी बुकिंग' टैब में अपनी टिकट और ड्राइवर का नंबर कभी भी देख सकते हैं।" if is_hi else "🎉 Confirmed! Check '🎫 My Bookings' anytime.")
+                                st.session_state.latest_wa_alert = {
+                                    "seat": chosen, "driver": trip["driver"], "phone": trip["phone"],
+                                    "wa_url": f"https://wa.me/91{trip['phone']}?text={wa_msg}"
+                                }
                                 st.rerun()
 
 # ==========================================
 # TAB 2: MY BOOKINGS (PASSENGER VIEW)
 # ==========================================
 with t_my:
+    if st.session_state.cancel_wa_alert:
+        c_info = st.session_state.cancel_wa_alert
+        with st.container(border=True):
+            st.warning("सीट रद्द हो गई है। ड्राइवर को नीचे दिए बटन से व्हाट्सएप पर सूचित कर दें:" if is_hi else "Seat cancelled. Notify driver on WhatsApp:")
+            st.link_button(
+                "📲 ड्राइवर को कैंसिल की सूचना व्हाट्सएप पर भेजें" if is_hi else "📲 Send Cancellation Alert on WhatsApp",
+                c_info["wa_url"],
+                type="primary",
+                use_container_width=True
+            )
+            if st.button("✖️ बंद करें" if is_hi else "✖️ Dismiss", key="dismiss_cwa"):
+                st.session_state.cancel_wa_alert = None
+                st.rerun()
+
     st.subheader("🎫 अपनी बुक की हुई टिकट देखें" if is_hi else "🎫 Check Your Booked Tickets")
     chk_phone = st.text_input(
         "बुकिंग के समय डाला गया मोबाइल नंबर लिखें:" if is_hi else "Enter Mobile Number used for booking:",
@@ -297,7 +346,13 @@ with t_my:
                             st.success(f"✅ कन्फर्म टिकट — सीट: **{b['seat']}** | 🕒 समय: **{t_time}**" if is_hi else f"✅ Confirmed — Seat: **{b['seat']}** | 🕒 Time: **{t_time}**")
                         st.write(f"🚕 **{b['vehicle']}** | 🛣️ {b['route']}")
                         st.write(f"💰 ड्राइवर को देना है: **₹{b['fare']}** | बुकिंग शुल्क: ₹{b['fee']}" if is_hi else f"💰 Pay Driver: **₹{b['fare']}** | Fee: ₹{b['fee']}")
-                        st.markdown(f"👤 **{b['driver']}** | 📞 **{b['phone']}** | [💬 व्हाट्सएप]({b['wa']})" if is_hi else f"👤 **{b['driver']}** | 📞 **{b['phone']}** | [💬 WhatsApp]({b['wa']})")
+                        st.write(f"👤 **{b['driver']}** | 📞 **{b['phone']}**")
+                        st.link_button(
+                            "📲 ड्राइवर को व्हाट्सएप करें" if is_hi else "📲 WhatsApp Driver",
+                            b["wa"],
+                            type="primary",
+                            use_container_width=True
+                        )
                         if st.button("❌ सीट रद्द करें" if is_hi else "❌ Cancel Seat", key=f"cnl_{b['bid']}"):
                             with st.spinner("रद्द हो रहा है..."):
                                 post_db({"action": "cancel_booking", "bid": b["bid"]})
@@ -305,6 +360,8 @@ with t_my:
                                     upd_seats = dict(trips_by_id[b["trip_id"]]["seats"])
                                     upd_seats[b["seat"]] = "Available"
                                     post_db({"action": "update_trip", "id": b["trip_id"], "seats": upd_seats})
+                            c_msg = quote(f"नमस्ते {b['driver']} जी, मैंने DevBhoomi Ride पर अपनी सीट ({b['seat']}, {b['route']}) रद्द कर दी है। — {b['passenger']}")
+                            st.session_state.cancel_wa_alert = {"wa_url": f"https://wa.me/91{b['phone']}?text={c_msg}"}
                             st.rerun()
     else:
         st.caption("अपनी पुरानी या कल की बुकिंग देखने के लिए ऊपर 10 अंकों का मोबाइल नंबर डालें।" if is_hi else "Enter your 10-digit mobile number to view your tickets anytime.")
@@ -467,7 +524,11 @@ with t3:
                             st.write(f"👤 **सवारी:** {b['passenger']}")
                             st.write(f"🛣️ **कहाँ से कहाँ तक:** {b['route']} | 💰 **किराया:** ₹{b['fare']}")
                             if p_wa:
-                                st.markdown(f"📞 **{p_ph}** | [💬 सवारी को व्हाट्सएप करें]({p_wa})" if is_hi else f"📞 **{p_ph}** | [💬 WhatsApp Passenger]({p_wa})")
+                                st.link_button(
+                                    f"💬 सवारी को व्हाट्सएप करें ({p_ph})" if is_hi else f"💬 WhatsApp Passenger ({p_ph})",
+                                    p_wa,
+                                    use_container_width=True
+                                )
 
         with d2:
             my_trips = [t for t in active_trips if t["phone"] == drv["phone"]]
