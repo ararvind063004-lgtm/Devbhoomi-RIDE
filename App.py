@@ -1,10 +1,82 @@
 import streamlit as st
 import requests
 import math
+import json
 from urllib.parse import quote
 
 st.set_page_config(page_title="DevBhoomi Ride", page_icon="🏔️", layout="centered")
 
+DB_URL = "https://script.google.com/macros/s/AKfycby3A2XJ0_hrgcs0IRy-pnJzQWmXmwrndsQXZEN73EjNoKKlSIW83dxnjqGp4L6yZ15heQ/exec"
+
+# --- GOOGLE SHEETS DATABASE FUNCTIONS ---
+@st.cache_data(ttl=15)
+def load_db():
+    try:
+        res = requests.get(DB_URL, timeout=10)
+        if res.status_code == 200:
+            raw = res.json()
+            drivers = {}
+            for d in raw.get("drivers", []):
+                ph = str(d.get("phone", "")).strip()
+                if ph:
+                    drivers[ph] = {
+                        "phone": ph, "name": str(d.get("name", "")),
+                        "address": str(d.get("address", "")),
+                        "vehicle_type": str(d.get("vehicle_type", "Cab / Shared")),
+                        "vehicle": str(d.get("vehicle", "")),
+                        "license": str(d.get("license", "")), "reg_paid": True
+                    }
+            trips = []
+            for t in raw.get("trips", []):
+                if not t.get("id"):
+                    continue
+                stops = t.get("stops", "[]")
+                seats = t.get("seats", "{}")
+                stops = json.loads(stops) if isinstance(stops, str) else stops
+                seats = json.loads(seats) if isinstance(seats, str) else seats
+                lat = float(t["lat"]) if str(t.get("lat", "")).strip() != "" else None
+                lon = float(t["lon"]) if str(t.get("lon", "")).strip() != "" else None
+                trips.append({
+                    "id": int(t["id"]), "driver": str(t.get("driver", "")),
+                    "phone": str(t.get("phone", "")).strip(),
+                    "vehicle_type": str(t.get("vehicle_type", "Cab / Shared")),
+                    "vehicle": str(t.get("vehicle", "")), "stops": stops,
+                    "lat": lat, "lon": lon, "time": str(t.get("time", "")),
+                    "full_fare": int(float(t.get("full_fare", 0))),
+                    "current_stop_idx": int(float(t.get("current_stop_idx", 0))),
+                    "delay_mins": int(float(t.get("delay_mins", 0))),
+                    "delay_reason": str(t.get("delay_reason", "समय पर")),
+                    "status": str(t.get("status", "Active")), "seats": seats
+                })
+            bookings = []
+            for b in raw.get("bookings", []):
+                if not b.get("bid"):
+                    continue
+                ph = str(b.get("phone", "")).strip()
+                msg = quote(f"Namaste {b.get('driver','')} ji, DevBhoomi Ride par {b.get('seat','')} book ki hai ({b.get('route','')}). Naam: {b.get('passenger','')}")
+                bookings.append({
+                    "bid": int(b["bid"]), "trip_id": int(b["trip_id"]),
+                    "passenger": str(b.get("passenger", "")), "seat": str(b.get("seat", "")),
+                    "vehicle": str(b.get("vehicle", "")), "route": str(b.get("route", "")),
+                    "fare": int(float(b.get("fare", 0))), "fee": int(float(b.get("fee", 0))),
+                    "driver": str(b.get("driver", "")), "phone": ph,
+                    "wa": f"https://wa.me/91{ph}?text={msg}",
+                    "status": str(b.get("status", "Confirmed"))
+                })
+            return drivers, trips, bookings
+    except Exception:
+        pass
+    return {}, [], []
+
+def post_db(payload):
+    try:
+        requests.post(DB_URL, json=payload, timeout=10)
+        load_db.clear()
+        return True
+    except Exception:
+        return False
+
+# --- FREE UTTARAKHAND VILLAGE SEARCH ---
 @st.cache_data(ttl=3600)
 def search_uk_village(query):
     if not query or len(query.strip()) < 3:
@@ -39,54 +111,23 @@ def haversine_km(lat1, lon1, lat2, lon2):
     a = math.sin(dlat / 2)**2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2)**2
     return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
-# --- LANGUAGE SWITCH ---
-lang = st.radio("🌐 भाषा चुनें / Language:", ["हिंदी", "English"], horizontal=True)
-is_hi = (lang == "हिंदी")
-
-# --- REGISTERED DRIVERS (DEMO) ---
-if "drivers" not in st.session_state:
-    st.session_state.drivers = {
-        "9876543210": {
-            "name": "रमेश बिष्ट", "phone": "9876543210", "address": "हल्द्वानी, नैनीताल",
-            "vehicle_type": "Cab / Shared", "vehicle": "Mahindra Bolero (UK 04 TA 4521)",
-            "license": "UK0420180012345", "reg_paid": True
-        }
-    }
+# --- LOAD LIVE DATA ---
+drivers_db, trips_db, bookings_db = load_db()
+active_trips = [t for t in trips_db if t["status"] == "Active"]
 
 if "logged_in_driver" not in st.session_state:
     st.session_state.logged_in_driver = None
+if "my_bookings" not in st.session_state:
+    st.session_state.my_bookings = []
 
-# --- INITIAL DEMO TRIPS ---
-if "trips" not in st.session_state:
-    st.session_state.trips = [
-        {
-            "id": 1, "driver": "रमेश बिष्ट", "phone": "9876543210",
-            "vehicle_type": "Cab / Shared", "vehicle": "Mahindra Bolero (UK 04 TA 4521)",
-            "stops": ["Haldwani", "Kathgodam", "Bhimtal", "Bhowali", "Kainchi Dham", "Almora"],
-            "lat": 29.2183, "lon": 79.5130, "time": "08:30 AM", "full_fare": 250,
-            "current_stop_idx": 1, "delay_mins": 10, "delay_reason": "काठगोदाम में सवारी बैठा रहे हैं",
-            "status": "Active",
-            "seats": {
-                "Front-1": "Booked", "Mid-1": "Booked", "Mid-2": "Booked",
-                "Mid-3": "Booked", "Back-1": "Booked", "Back-2": "Booked", "Back-3": "Available"
-            }
-        },
-        {
-            "id": 2, "driver": "अमित रावत", "phone": "9756001122",
-            "vehicle_type": "Bike / Scooty", "vehicle": "Honda Activa (UK 04 AB 2233)",
-            "stops": ["Haldwani", "Kathgodam", "Bhimtal", "Bhowali"],
-            "lat": 29.3461, "lon": 79.5519, "time": "अभी उपलब्ध", "full_fare": 80,
-            "current_stop_idx": 0, "delay_mins": 0, "delay_reason": "समय पर",
-            "status": "Active", "seats": {"Pillion-Seat": "Available"}
-        }
-    ]
+# --- LANGUAGE SWITCH & HEADER ---
+c_lang, c_ref = st.columns([3, 1])
+lang = c_lang.radio("🌐 भाषा चुनें / Language:", ["हिंदी", "English"], horizontal=True)
+is_hi = (lang == "हिंदी")
+if c_ref.button("🔄 रिफ्रेश" if is_hi else "🔄 Refresh"):
+    load_db.clear()
+    st.rerun()
 
-if "bookings" not in st.session_state:
-    st.session_state.bookings = []
-
-active_trips = [t for t in st.session_state.trips if t["status"] == "Active"]
-
-# --- HEADER ---
 st.title("🏔️ देवभूमि राइड" if is_hi else "🏔️ DevBhoomi Ride")
 st.caption("उत्तराखंड के हर गाँव से बाज़ार तक — टैक्सी, बाइक और स्कूटी" if is_hi else "From every Uttarakhand village to city — Cab, Bike & Scooty")
 
@@ -136,11 +177,11 @@ with t1:
         if v_filter != "All" and trip["vehicle_type"] != v_filter:
             continue
         stops_l = " ".join(trip["stops"]).lower()
-        p_name = p_sel["name"] if p_sel else trip["stops"][0]
-        d_name = d_sel["name"] if d_sel else trip["stops"][-1]
+        p_name = p_sel["name"] if p_sel else (trip["stops"][0] if trip["stops"] else "")
+        d_name = d_sel["name"] if d_sel else (trip["stops"][-1] if trip["stops"] else "")
 
         if not p_sel and not d_sel:
-            matched.append((trip, trip["full_fare"], trip["stops"][0], trip["stops"][-1], None))
+            matched.append((trip, trip["full_fare"], p_name, d_name, None))
         else:
             hit = (p_sel and p_sel["name"].lower() in stops_l) or (d_sel and d_sel["name"].lower() in stops_l)
             dist_km = round(haversine_km(p_sel["lat"], p_sel["lon"], trip["lat"], trip["lon"]), 1) if (p_sel and p_sel["lat"] and trip.get("lat")) else None
@@ -148,7 +189,7 @@ with t1:
                 matched.append((trip, trip["full_fare"], p_name, d_name, dist_km))
 
     if not matched:
-        st.warning("इस गाँव के 20 किमी के दायरे में अभी कोई गाड़ी नहीं मिली।" if is_hi else "No rides found within 20 km.")
+        st.warning("अभी कोई लाइव गाड़ी नहीं मिली। ड्राइवर पैनल से नई ट्रिप डालें!" if is_hi else "No active rides found.")
     else:
         for trip, fare, p_stop, d_stop, dist_km in matched:
             avail_seats = [s for s, status in trip["seats"].items() if status == "Available"]
@@ -206,21 +247,25 @@ with t1:
                             if not p_user or not p_phone:
                                 st.error("कृपया अपना नाम और मोबाइल नंबर भरें।" if is_hi else "Please enter name and mobile number.")
                             else:
-                                trip["seats"][chosen] = "Booked"
-                                msg = quote(f"Namaste {trip['driver']} ji, DevBhoomi Ride par {chosen} book ki hai ({p_stop} se {d_stop}). Naam: {p_user}, Phone: {p_phone}")
-                                st.session_state.bookings.append({
-                                    "bid": len(st.session_state.bookings) + 1, "trip_id": trip["id"],
-                                    "passenger": p_user, "seat": chosen, "vehicle": trip["vehicle"],
-                                    "route": f"{p_stop} ➔ {d_stop}", "fare": fare, "fee": fee,
-                                    "driver": trip["driver"], "phone": trip["phone"],
-                                    "wa": f"https://wa.me/91{trip['phone']}?text={msg}", "status": "Confirmed"
-                                })
-                                st.success("🎉 बुकिंग कन्फर्म! ड्राइवर का नंबर नीचे दिख रहा है।" if is_hi else "🎉 Confirmed! Driver details below.")
+                                new_seats = dict(trip["seats"])
+                                new_seats[chosen] = "Booked"
+                                new_bid = (max([b["bid"] for b in bookings_db]) + 1) if bookings_db else 1
+                                b_data = {
+                                    "bid": new_bid, "trip_id": trip["id"], "passenger": p_user,
+                                    "seat": chosen, "vehicle": trip["vehicle"], "route": f"{p_stop} ➔ {d_stop}",
+                                    "fare": fare, "fee": fee, "driver": trip["driver"], "phone": trip["phone"]
+                                }
+                                with st.spinner("बुकिंग सेव हो रही है..." if is_hi else "Saving booking..."):
+                                    post_db({"action": "update_trip", "id": trip["id"], "seats": new_seats})
+                                    post_db({"action": "add_booking", "booking": b_data})
+                                st.session_state.my_bookings.append(new_bid)
+                                st.success("🎉 बुकिंग कन्फर्म! ड्राइवर का नंबर नीचे दिख रहा है।" if is_hi else "🎉 Confirmed!")
                                 st.rerun()
 
-    if st.session_state.bookings:
+    shown_bookings = [b for b in bookings_db if b["bid"] in st.session_state.my_bookings]
+    if shown_bookings:
         st.subheader("🔓 आपकी बुकिंग्स (ड्राइवर की जानकारी)" if is_hi else "🔓 Your Bookings")
-        for b in reversed(st.session_state.bookings):
+        for b in reversed(shown_bookings):
             with st.container(border=True):
                 if b["status"] == "Cancelled":
                     st.error(f"❌ रद्द की गई — {b['vehicle']} | सीट: {b['seat']}" if is_hi else f"❌ Cancelled — {b['vehicle']}")
@@ -229,10 +274,13 @@ with t1:
                     st.write(f"ड्राइवर को देना है: **₹{b['fare']}** | बुकिंग शुल्क: ₹{b['fee']}")
                     st.markdown(f"👤 **{b['driver']}** | 📞 **{b['phone']}** | [💬 व्हाट्सएप]({b['wa']})")
                     if st.button("❌ सीट रद्द करें" if is_hi else "❌ Cancel Seat", key=f"cnl_{b['bid']}"):
-                        b["status"] = "Cancelled"
-                        for t in st.session_state.trips:
-                            if t["id"] == b["trip_id"]:
-                                t["seats"][b["seat"]] = "Available"
+                        with st.spinner("रद्द हो रहा है..."):
+                            post_db({"action": "cancel_booking", "bid": b["bid"]})
+                            for t in trips_db:
+                                if t["id"] == b["trip_id"]:
+                                    upd_seats = dict(t["seats"])
+                                    upd_seats[b["seat"]] = "Available"
+                                    post_db({"action": "update_trip", "id": t["id"], "seats": upd_seats})
                         st.rerun()
 
 # ==========================================
@@ -243,7 +291,7 @@ with t2:
     if not active_trips:
         st.info("अभी कोई सक्रिय ट्रिप नहीं है।" if is_hi else "No active trips.")
     else:
-        t_map = {f"{t['vehicle']} ({t['stops'][0]} ➔ {t['stops'][-1]})": t for t in active_trips}
+        t_map = {f"{t['vehicle']} ({t['stops'][0]} ➔ {t['stops'][-1]})": t for t in active_trips if t["stops"]}
         tr = t_map[st.selectbox("गाड़ी चुनें:" if is_hi else "Select Vehicle:", list(t_map.keys()))]
         u_stop = st.selectbox("आप किस स्टॉप पर हैं?" if is_hi else "Your Stop:", tr["stops"], index=min(1, len(tr["stops"]) - 1))
 
@@ -264,7 +312,7 @@ with t2:
                 st.markdown(f"⚪ {s}")
 
 # ==========================================
-# TAB 3: DRIVER PANEL (SINGLE FLOW)
+# TAB 3: DRIVER PANEL (LIVE GOOGLE SHEETS)
 # ==========================================
 with t3:
     if st.session_state.logged_in_driver is None:
@@ -275,13 +323,13 @@ with t3:
         ).strip()
 
         if len(ph_in) >= 10:
-            if ph_in in st.session_state.drivers:
+            if ph_in in drivers_db:
                 st.success("✅ आपका नंबर पहले से रजिस्टर्ड है!" if is_hi else "✅ Already registered!")
                 if st.button("🚀 आगे बढ़ें (ट्रिप पैनल खोलें)" if is_hi else "🚀 Continue to Trip Panel"):
-                    st.session_state.logged_in_driver = st.session_state.drivers[ph_in]
+                    st.session_state.logged_in_driver = drivers_db[ph_in]
                     st.rerun()
             else:
-                st.info("📝 नया ड्राइवर रजिस्ट्रेशन (सिर्फ़ एक बार ₹99, फिर रोज़ की ट्रिप फ्री)" if is_hi else "📝 New Driver Registration (₹99 one-time, then daily trips free)")
+                st.info("📝 नया ड्राइवर रजिस्ट्रेशन (सिर्फ़ एक बार ₹99, फिर रोज़ की ट्रिप फ्री)" if is_hi else "📝 New Driver Registration (₹99 one-time)")
                 with st.form("driver_reg_form"):
                     r_name = st.text_input("ड्राइवर का पूरा नाम" if is_hi else "Full Name", placeholder="मनोज जोशी")
                     r_addr = st.text_area("पूरा पता (गाँव / शहर / जिला)" if is_hi else "Full Address", placeholder="गाँव, पोस्ट, जिला...")
@@ -304,12 +352,13 @@ with t3:
                                 "name": r_name.strip(), "phone": ph_in, "address": r_addr.strip(),
                                 "vehicle_type": r_vtype, "vehicle": r_veh.strip(), "license": r_dl.strip(), "reg_paid": True
                             }
-                            st.session_state.drivers[ph_in] = new_drv
+                            with st.spinner("रजिस्ट्रेशन सेव हो रहा है..."):
+                                post_db({"action": "add_driver", "driver": new_drv})
                             st.session_state.logged_in_driver = new_drv
                             st.success("🎉 रजिस्ट्रेशन सफल! अब आप रोज़ फ्री में ट्रिप डाल सकते हैं।" if is_hi else "🎉 Registered!")
                             st.rerun()
         else:
-            st.caption("नया रजिस्ट्रेशन करने या रोज़ की ट्रिप डालने के लिए ऊपर अपना 10 अंकों का मोबाइल नंबर लिखें।" if is_hi else "Enter your 10-digit mobile number to register or add trips.")
+            st.caption("नया रजिस्ट्रेशन करने या रोज़ की ट्रिप डालने के लिए ऊपर अपना 10 अंकों का मोबाइल नंबर लिखें।" if is_hi else "Enter your 10-digit mobile number.")
 
     else:
         drv = st.session_state.logged_in_driver
@@ -351,13 +400,14 @@ with t3:
                         else:
                             names = ["Front-1", "Mid-1", "Mid-2", "Mid-3", "Back-1", "Back-2", "Back-3"]
                             s_map = {s: ("Booked" if i < booked_cnt else "Available") for i, s in enumerate(names)}
-                        st.session_state.trips.append({
-                            "id": len(st.session_state.trips) + 1, "driver": drv["name"], "phone": drv["phone"],
+                        new_tid = (max([t["id"] for t in trips_db]) + 1) if trips_db else 1
+                        new_trip = {
+                            "id": new_tid, "driver": drv["name"], "phone": drv["phone"],
                             "vehicle_type": drv["vehicle_type"], "vehicle": drv["vehicle"], "stops": s_list,
-                            "lat": d_lat, "lon": d_lon, "time": d_time, "full_fare": d_fare,
-                            "current_stop_idx": 0, "delay_mins": 0, "delay_reason": "समय पर",
-                            "status": "Active", "seats": s_map
-                        })
+                            "lat": d_lat, "lon": d_lon, "time": d_time, "full_fare": d_fare, "seats": s_map
+                        }
+                        with st.spinner("गाड़ी ऑनलाइन डाली जा रही है..."):
+                            post_db({"action": "add_trip", "trip": new_trip})
                         st.success("✅ आपकी गाड़ी लाइव हो गई है!" if is_hi else "✅ Trip is now live!")
                         st.rerun()
                     else:
@@ -368,7 +418,7 @@ with t3:
             if not my_trips:
                 st.info("आपकी अभी कोई सक्रिय ट्रिप नहीं है।" if is_hi else "No active trips.")
             else:
-                d_map = {f"{t['vehicle']} ({t['stops'][0]} ➔ {t['stops'][-1]})": t for t in my_trips}
+                d_map = {f"{t['vehicle']} ({t['stops'][0]} ➔ {t['stops'][-1]})": t for t in my_trips if t["stops"]}
                 st_trip = d_map[st.selectbox("अपनी ट्रिप चुनें:" if is_hi else "Select Trip:", list(d_map.keys()))]
                 n_stop = st.selectbox("अभी कहाँ पहुँचे हैं?" if is_hi else "Current Location:", st_trip["stops"], index=st_trip["current_stop_idx"])
                 n_delay = st.radio("क्या गाड़ी लेट है?" if is_hi else "Delay:", [0, 10, 20, 30], format_func=lambda x: ("समय पर" if is_hi else "On Time") if x == 0 else f"+{x} min", horizontal=True)
@@ -376,12 +426,17 @@ with t3:
 
                 col_u, col_c = st.columns(2)
                 if col_u.button("📡 लोकेशन अपडेट करें" if is_hi else "📡 Update Location"):
-                    st_trip["current_stop_idx"] = st_trip["stops"].index(n_stop)
-                    st_trip["delay_mins"] = n_delay
-                    st_trip["delay_reason"] = ("समय पर" if is_hi else "On Time") if n_delay == 0 else n_reason
+                    with st.spinner("अपडेट हो रहा है..."):
+                        post_db({
+                            "action": "update_trip", "id": st_trip["id"],
+                            "current_stop_idx": st_trip["stops"].index(n_stop),
+                            "delay_mins": n_delay,
+                            "delay_reason": ("समय पर" if is_hi else "On Time") if n_delay == 0 else n_reason
+                        })
                     st.success("✅ लोकेशन अपडेट हो गई!")
                     st.rerun()
                 if col_c.button("🚫 पूरी ट्रिप रद्द करें" if is_hi else "🚫 Cancel Trip"):
-                    st_trip["status"] = "Cancelled"
+                    with st.spinner("रद्द हो रहा है..."):
+                        post_db({"action": "update_trip", "id": st_trip["id"], "status": "Cancelled"})
                     st.error("ट्रिप रद्द कर दी गई है।")
                     st.rerun()
