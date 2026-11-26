@@ -123,7 +123,9 @@ def haversine_km(lat1, lon1, lat2, lon2):
     return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
 # --- LOAD LIVE DATA ---
-drivers_db, trips_db, bookings_db = load_db()
+drivers_db, trips_db, all_bookings_db = load_db()
+bookings_db = [b for b in all_bookings_db if b["trip_id"] != 0]
+chardham_leads = [b for b in all_bookings_db if b["trip_id"] == 0]
 active_trips = [t for t in trips_db if t["status"] == "Active"]
 trips_by_id = {t["id"]: t for t in trips_db}
 
@@ -145,12 +147,13 @@ if c_ref.button("🔄 रिफ्रेश" if is_hi else "🔄 Refresh"):
     st.rerun()
 
 st.title("🏔️ देवभूमि राइड" if is_hi else "🏔️ DevBhoomi Ride")
-st.caption("उत्तराखंड के हर गाँव से बाज़ार तक — टैक्सी, बाइक और स्कूटी" if is_hi else "From every Uttarakhand village to city — Cab, Bike & Scooty")
+st.caption("उत्तराखंड के हर गाँव से बाज़ार और चारधाम यात्रा तक — टैक्सी, बाइक और स्कूटी" if is_hi else "Uttarakhand Villages to City & Char Dham Yatra — Cab, Bike & Scooty")
 
-t1, t_my, t2, t3 = st.tabs([
-    "🔍 सीट बुक करें" if is_hi else "🔍 Book Ride",
+t1, t_cd, t_my, t2, t3 = st.tabs([
+    "🔍 सीट बुक" if is_hi else "🔍 Book Ride",
+    "🕉️ चारधाम यात्रा" if is_hi else "🕉️ Char Dham",
     "🎫 मेरी बुकिंग" if is_hi else "🎫 My Bookings",
-    "📍 लाइव लोकेशन" if is_hi else "📍 Live Track",
+    "📍 लाइव" if is_hi else "📍 Live Track",
     "👨‍✈️ ड्राइवर पैनल" if is_hi else "👨‍✈️ Driver Panel"
 ])
 
@@ -284,7 +287,7 @@ with t1:
                             else:
                                 new_seats = dict(trip["seats"])
                                 new_seats[chosen] = "Booked"
-                                new_bid = (max([b["bid"] for b in bookings_db]) + 1) if bookings_db else 1
+                                new_bid = (max([b["bid"] for b in all_bookings_db]) + 1) if all_bookings_db else 1
                                 b_data = {
                                     "bid": new_bid, "trip_id": trip["id"],
                                     "passenger": f"{p_user.strip()} ({p_phone.strip()})",
@@ -308,7 +311,66 @@ with t1:
                                 st.rerun()
 
 # ==========================================
-# TAB 2: MY BOOKINGS (PASSENGER VIEW)
+# TAB 2: CHAR DHAM YATRA (TOURIST ENQUIRY)
+# ==========================================
+with t_cd:
+    st.subheader("🕉️ चारधाम यात्रा — सीधी लोकल टैक्सी बुकिंग" if is_hi else "🕉️ Char Dham Yatra — Direct Local Cab Booking")
+    st.info(
+        "🏔️ **जीरो एजेंट कमीशन!** अपनी यात्रा की जानकारी डालें — उत्तराखंड के वेरिफाइड पहाड़ी ड्राइवर सीधे आपको व्हाट्सएप/कॉल पर अपना बेस्ट रेट देंगे।"
+        if is_hi else
+        "🏔️ **Zero Agent Commission!** Submit your Yatra plan — verified local Uttarakhand drivers will send you direct quotes on WhatsApp/Call."
+    )
+
+    with st.form("chardham_enquiry_form"):
+        cd_c1, cd_c2 = st.columns(2)
+        cd_pickup = cd_c1.selectbox(
+            "पिकअप शहर:" if is_hi else "Pickup City:",
+            ["Haridwar", "Rishikesh", "Dehradun", "Delhi / NCR", "Kathgodam / Haldwani", "Other"]
+        )
+        cd_dham = cd_c2.selectbox(
+            "कौन से धाम जाना है?" if is_hi else "Select Yatra:",
+            [
+                "Poora Char Dham (Yamunotri, Gangotri, Kedarnath, Badrinath)",
+                "Do Dham (Kedarnath + Badrinath)",
+                "Ek Dham (Kedarnath)",
+                "Ek Dham (Badrinath)",
+                "Gangotri + Yamunotri"
+            ]
+        )
+        cd_c3, cd_c4 = st.columns(2)
+        cd_veh = cd_c3.selectbox(
+            "गाड़ी का प्रकार:" if is_hi else "Vehicle Needed:",
+            ["Dzire / Sedan (4 Seater)", "Ertiga / Innova (6-7 Seater)", "Bolero / Sumo (Pahadi SUV)", "Tempo Traveller (12-17 Seater)", "Shared Seat (1-2 Log)"]
+        )
+        cd_pax = cd_c4.number_input("कुल यात्री (लोग):" if is_hi else "Total Passengers:", min_value=1, max_value=25, value=4)
+        cd_date = st.text_input("यात्रा की तारीख (Date):" if is_hi else "Travel Date:", placeholder="जैसे: 15 May 2026")
+        cd_name = st.text_input("आपका नाम:" if is_hi else "Your Name:", placeholder="जैसे: Rajesh Sharma (Delhi)")
+        cd_phone = st.text_input("आपका 10 अंकों का व्हाट्सएप नंबर:" if is_hi else "10-digit WhatsApp Number:", placeholder="9876543210")
+
+        if st.form_submit_button("🚀 लोकल ड्राइवरों से फ्री रेट मँगवाएँ" if is_hi else "🚀 Get Free Quotes from Local Drivers", type="primary"):
+            if not (cd_name.strip() and len(cd_phone.strip()) >= 10 and cd_date.strip()):
+                st.error("कृपया नाम, तारीख और 10 अंकों का मोबाइल नंबर भरें।" if is_hi else "Please fill name, date and 10-digit mobile number.")
+            else:
+                new_bid = (max([b["bid"] for b in all_bookings_db]) + 1) if all_bookings_db else 1
+                lead_data = {
+                    "bid": new_bid, "trip_id": 0,
+                    "passenger": f"{cd_name.strip()} ({cd_phone.strip()})",
+                    "seat": f"{cd_pax} लोग | तारीख: {cd_date.strip()}",
+                    "vehicle": cd_veh,
+                    "route": f"{cd_pickup} ➔ {cd_dham}",
+                    "fare": 0, "fee": 0, "driver": "CharDham", "phone": cd_phone.strip()
+                }
+                with st.spinner("आपकी रिक्वेस्ट लोकल ड्राइवरों को भेजी जा रही है..."):
+                    post_db({"action": "add_booking", "booking": lead_data})
+                st.success("✅ आपकी चारधाम रिक्वेस्ट सेव हो गई है! उत्तराखंड के लोकल ड्राइवर जल्द ही आपको व्हाट्सएप/कॉल पर अपना रेट भेजेंगे।" if is_hi else "✅ Request submitted! Local drivers will contact you soon with direct rates.")
+
+    st.divider()
+    st.markdown("**📌 यात्रियों के लिए ज़रूरी जानकारी:**" if is_hi else "**📌 Useful Yatra Links & Rules:**")
+    st.caption("• पहाड़ों पर चढ़ाई के समय गाड़ी का AC बंद रहता है। • टोल, पार्किंग और स्टेट टैक्स की बात ड्राइवर से पहले कन्फर्म कर लें। • आपातकालीन सहायता (Police / SDRF): **112**" if is_hi else "• AC is turned off on steep mountain climbs. • Confirm toll/parking with driver. • Emergency Helpline (Police / SDRF): **112**")
+    st.link_button("🏛️ Official Uttarakhand Char Dham Yatra Registration Portal", "https://registrationandtouristcare.uk.gov.in/", use_container_width=True)
+
+# ==========================================
+# TAB 3: MY BOOKINGS (PASSENGER VIEW)
 # ==========================================
 with t_my:
     if st.session_state.cancel_wa_alert:
@@ -372,7 +434,7 @@ with t_my:
         st.caption("अपनी पुरानी या कल की बुकिंग देखने के लिए ऊपर 10 अंकों का मोबाइल नंबर डालें।" if is_hi else "Enter your 10-digit mobile number to view your tickets anytime.")
 
 # ==========================================
-# TAB 3: LIVE TRACKING
+# TAB 4: LIVE TRACKING
 # ==========================================
 with t2:
     st.subheader("📍 गाड़ी अभी कहाँ पहुँची है?" if is_hi else "📍 Live Tracking")
@@ -400,7 +462,7 @@ with t2:
                 st.markdown(f"⚪ {s}")
 
 # ==========================================
-# TAB 4: DRIVER PANEL (4-DIGIT PIN PROTECTED)
+# TAB 5: DRIVER PANEL (4-DIGIT PIN + FREE CHAR DHAM LEADS)
 # ==========================================
 with t3:
     if st.session_state.logged_in_driver is None:
@@ -422,7 +484,7 @@ with t3:
                         else:
                             st.error("❌ गलत PIN! कृपया सही 4 अंकों का PIN डालें।" if is_hi else "❌ Wrong PIN! Please try again.")
             else:
-                st.info("📝 नया ड्राइवर रजिस्ट्रेशन (सिर्फ़ एक बार ₹99, फिर रोज़ की ट्रिप फ्री)" if is_hi else "📝 New Driver Registration (₹99 one-time)")
+                st.info("📝 नया ड्राइवर रजिस्ट्रेशन (सिर्फ़ एक बार ₹99, फिर रोज़ की ट्रिप और चारधाम लीड्स फ्री)" if is_hi else "📝 New Driver Registration (₹99 one-time)")
                 with st.form("driver_reg_form"):
                     r_name = st.text_input("ड्राइवर का पूरा नाम" if is_hi else "Full Name", placeholder="मनोज जोशी")
                     r_addr = st.text_area("पूरा पता (गाँव / शहर / जिला)" if is_hi else "Full Address", placeholder="गाँव, पोस्ट, जिला...")
@@ -469,9 +531,10 @@ with t3:
             st.session_state.logged_in_driver = None
             st.rerun()
 
-        d1, d_bk, d2 = st.tabs([
+        d1, d_bk, d_cd, d2 = st.tabs([
             "➕ ट्रिप डालें" if is_hi else "➕ Add Trip",
             "📋 मेरी बुकिंग्स" if is_hi else "📋 My Bookings",
+            "🕉️ चारधाम लीड्स (फ्री)" if is_hi else "🕉️ Char Dham (Free)",
             "📡 लोकेशन / रद्द" if is_hi else "📡 Location / Cancel"
         ])
 
@@ -547,6 +610,30 @@ with t3:
                                     p_wa,
                                     use_container_width=True
                                 )
+
+        with d_cd:
+            st.subheader("🕉️ चारधाम यात्रा बुकिंग लीड्स (बिल्कुल फ्री)" if is_hi else "🕉️ Char Dham Yatra Leads (100% Free)")
+            st.caption("बाहर के यात्रियों की सीधी रिक्वेस्ट — आप बिना किसी कमीशन के सीधे यात्री को अपना रेट भेज सकते हैं।" if is_hi else "Direct tourist enquiries — send your quote directly with zero commission.")
+            if not chardham_leads:
+                st.info("अभी कोई नई चारधाम रिक्वेस्ट नहीं आई है।" if is_hi else "No Char Dham enquiries yet.")
+            else:
+                for ld in reversed(chardham_leads):
+                    t_ph = ld["phone"]
+                    q_msg = quote(
+                        f"नमस्ते, मैं {drv['name']} ({drv['vehicle']}) DevBhoomi Ride से लोकल उत्तराखंड ड्राइवर हूँ। "
+                        f"आपकी चारधाम यात्रा ({ld['route']}, {ld['seat']}) के लिए मेरी गाड़ी उपलब्ध है। कृपया रेट के लिए बात करें।"
+                    )
+                    q_wa = f"https://wa.me/91{t_ph}?text={q_msg}"
+                    with st.container(border=True):
+                        st.success(f"🕉️ **{ld['route']}**")
+                        st.write(f"👥 **{ld['seat']}** | 🚕 गाड़ी चाहिए: **{ld['vehicle']}**")
+                        st.write(f"👤 **यात्री:** {ld['passenger']}")
+                        st.link_button(
+                            f"💬 यात्री को अपना रेट व्हाट्सएप करें ({t_ph})" if is_hi else f"💬 Send Quote on WhatsApp ({t_ph})",
+                            q_wa,
+                            type="primary",
+                            use_container_width=True
+                        )
 
         with d2:
             my_trips = [t for t in active_trips if t["phone"] == drv["phone"]]
