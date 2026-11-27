@@ -1,0 +1,11 @@
+name: Keep DevBhoomi Ride Awake
+on:
+  schedule:
+    - cron: '30 2 * * *'
+  workflow_dispatch:
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping App
+        run: curl -sL "https://devbhoomi-ride-ssvcs7p4dorfxhu86rg9j5.streamlit.app/" > /dev/null
