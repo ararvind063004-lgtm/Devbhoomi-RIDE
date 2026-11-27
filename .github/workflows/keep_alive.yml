@@ -8,4 +8,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Ping App
-        run: curl -sL "https://devbhoomi-ride-ssvcs7p4dorfxhu86rg9j5.streamlit.app/" > /dev/null
+        run: |
+          curl -sS -A "Mozilla/5.0" "https://devbhoomi-ride-ssvcs7p4dorfxhu86rg9j5.streamlit.app/" > /dev/null || true
