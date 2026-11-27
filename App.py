@@ -123,17 +123,80 @@ def haversine_km(lat1, lon1, lat2, lon2):
     a = math.sin(dlat / 2)**2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2)**2
     return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
+def show_footer(is_hi):
+    st.divider()
+    with st.expander("🆘 मदद / Help & Support (24x7)"):
+        st.caption(
+            "किसी भी शिकायत, गाड़ी में छूटे सामान, या ड्राइवर PIN रीसेट के लिए नीचे क्लिक करें:"
+            if is_hi else
+            "For complaints, lost items, or Driver PIN reset, contact DevBhoomi Support:"
+        )
+        sup_msg = quote("नमस्ते DevBhoomi Ride Support, मुझे मदद चाहिए:")
+        sc1, sc2 = st.columns(2)
+        sc1.link_button(
+            "💬 DevBhoomi Support (WhatsApp)" if is_hi else "💬 WhatsApp Support",
+            f"https://wa.me/{SUPPORT_WHATSAPP}?text={sup_msg}",
+            type="primary",
+            use_container_width=True
+        )
+        sc2.link_button(
+            "🚨 Emergency Police / SDRF (112)" if is_hi else "🚨 Emergency SOS (112)",
+            "tel:112",
+            use_container_width=True
+        )
+
+    with st.expander("📜 नियम और शर्तें / Terms & Privacy Policy"):
+        if is_hi:
+            st.markdown("""
+**📜 नियम और शर्तें (Terms & Conditions):**
+1. **प्लेटफ़ॉर्म की भूमिका:** DevBhoomi Ride केवल एक ऑनलाइन बुकिंग प्लेटफ़ॉर्म है जो यात्रियों और लोकल ड्राइवरों को आपस में जोड़ता है। गाड़ी की कंडीशन, वैध लाइसेंस (DL), कागज़ात और सुरक्षित ड्राइविंग की पूरी ज़िम्मेदारी संबंधित ड्राइवर की होगी।
+2. **किराया और यात्रा नियम:** लोकल या चारधाम यात्रा का किराया, टोल, पार्किंग और पहाड़ों पर चढ़ाई के समय AC बंद रहने जैसे नियम यात्री और ड्राइवर के बीच लागू होंगे।
+3. **रद्द करना (Cancellation):** सीट या ट्रिप रद्द करने पर कृपया ऐप में तुरंत रद्द करें और सामने वाले को व्हाट्सएप पर सूचित करें। बार-बार फर्जी बुकिंग करने पर नंबर ब्लॉक किया जा सकता है।
+4. **सुरक्षा और सामान:** यात्रा के दौरान अपने कीमती सामान की ज़िम्मेदारी यात्री की स्वयं की होगी। बाइक/स्कूटी राइड के लिए हेलमेट अनिवार्य है। किसी भी आपात स्थिति में **112** पर कॉल करें।
+
+---
+**🔒 गोपनीयता नीति (Privacy Policy):**
+1. **डेटा संग्रह:** हम केवल वही जानकारी लेते हैं जो बुकिंग के लिए ज़रूरी है (नाम, मोबाइल नंबर, और ड्राइवरों के लिए गाड़ी नंबर, पता व लाइसेंस)।
+2. **नंबर की सुरक्षा:** यात्री और ड्राइवर का मोबाइल नंबर केवल बुकिंग कन्फर्म होने के बाद ही एक-दूसरे को दिखता है। हम आपका डेटा किसी भी बाहरी कंपनी को नहीं बेचते।
+3. **डेटा हटाना:** यदि कोई ड्राइवर या यात्री अपना डेटा हटवाना चाहता है, तो ऊपर दिए गए Support WhatsApp पर संदेश भेजकर हटवा सकता है।
+            """)
+        else:
+            st.markdown("""
+**📜 Terms & Conditions:**
+1. **Platform Role:** DevBhoomi Ride is only an online booking platform connecting passengers and local drivers. Vehicle condition, valid Driving License, documents, and safe driving are the sole responsibility of the driver.
+2. **Fare & Travel Rules:** Local or Char Dham fares, tolls, parking, and mountain rules (such as AC off on steep climbs) apply directly between the passenger and driver.
+3. **Cancellations:** If cancelling a seat or trip, please cancel immediately in the app and inform via WhatsApp. Repeated fake bookings may lead to number blocking.
+4. **Safety & Luggage:** Passengers are responsible for their own luggage and valuables. Helmets are mandatory for Bike/Scooty rides. Call **112** in any emergency.
+
+---
+**🔒 Privacy Policy:**
+1. **Data Collection:** We only collect details required for booking (Name, Mobile Number, and Vehicle/Address/DL details for drivers).
+2. **Number Privacy:** Driver and passenger contact numbers are shared with each other only after booking confirmation. We never sell user data to third parties.
+3. **Data Removal:** Any driver or passenger can request deletion of their data anytime via the Support WhatsApp button above.
+            """)
+
 # --- LOAD LIVE DATA ---
 drivers_db, trips_db, all_bookings_db = load_db()
-bookings_db = [b for b in all_bookings_db if b["trip_id"] != 0]
+customers_db = {}
+for b in all_bookings_db:
+    if b["trip_id"] == -1 and b["phone"]:
+        customers_db[b["phone"]] = {
+            "name": b["passenger"],
+            "phone": b["phone"],
+            "email": b["vehicle"]
+        }
+
+bookings_db = [b for b in all_bookings_db if b["trip_id"] > 0]
 active_local_trips = [t for t in trips_db if t["status"] == "Active" and t["vehicle_type"] != "CharDham"]
 active_cd_trips = [t for t in trips_db if t["status"] == "Active" and t["vehicle_type"] == "CharDham"]
 trips_by_id = {t["id"]: t for t in trips_db}
 
+if "logged_in_user" not in st.session_state:
+    st.session_state.logged_in_user = None
 if "logged_in_driver" not in st.session_state:
     st.session_state.logged_in_driver = None
-if "last_p_phone" not in st.session_state:
-    st.session_state.last_p_phone = ""
+if "show_welcome" not in st.session_state:
+    st.session_state.show_welcome = False
 if "latest_wa_alert" not in st.session_state:
     st.session_state.latest_wa_alert = None
 if "cancel_wa_alert" not in st.session_state:
@@ -149,6 +212,77 @@ if c_ref.button("🔄 रिफ्रेश" if is_hi else "🔄 Refresh"):
 
 st.title("🏔️ देवभूमि राइड" if is_hi else "🏔️ DevBhoomi Ride")
 st.caption("उत्तराखंड के हर गाँव से बाज़ार और चारधाम यात्रा तक — टैक्सी, बाइक और स्कूटी" if is_hi else "Uttarakhand Villages to City & Char Dham Yatra — Cab, Bike & Scooty")
+
+# ==========================================
+# SIMPLE UNIFIED LOGIN SCREEN
+# ==========================================
+if st.session_state.logged_in_user is None:
+    with st.container(border=True):
+        st.subheader("🙏 नमस्ते! शुरू करने के लिए लॉगिन करें" if is_hi else "🙏 Namaste! Login to Continue")
+        u_ph = st.text_input(
+            "अपना 10 अंकों का मोबाइल नंबर डालें:" if is_hi else "Enter your 10-digit Mobile Number:",
+            placeholder="जैसे: 9876543210",
+            max_chars=10
+        ).strip()
+
+        if len(u_ph) == 10 and u_ph.isdigit():
+            if u_ph in customers_db:
+                cust = customers_db[u_ph]
+                st.success(f"🙏 नमस्ते **{cust['name']}** जी!" if is_hi else f"🙏 Namaste **{cust['name']}**!")
+                if st.button("🚀 ऐप खोलें (आगे बढ़ें)" if is_hi else "🚀 Open App & Continue", type="primary", use_container_width=True):
+                    st.session_state.logged_in_user = cust
+                    st.session_state.show_welcome = True
+                    st.rerun()
+            else:
+                st.info("📝 पहली बार आ रहे हैं? अपना नाम डालकर तुरंत शुरू करें:" if is_hi else "📝 First time here? Enter your name to get started:")
+                with st.form("cust_signup_form"):
+                    nc1, nc2 = st.columns(2)
+                    fn = nc1.text_input("पहला नाम (First Name)*" if is_hi else "First Name*", placeholder="रोहित")
+                    ln = nc2.text_input("उपनाम (Last Name)*" if is_hi else "Last Name*", placeholder="बिष्ट")
+                    em = st.text_input("ईमेल (वैकल्पिक / Optional)" if is_hi else "Email (Optional)", placeholder="example@gmail.com")
+                    if st.form_submit_button("🙏 लॉगिन करें और आगे बढ़ें" if is_hi else "🙏 Login & Continue", type="primary", use_container_width=True):
+                        if not (fn.strip() and ln.strip()):
+                            st.error("कृपया पहला नाम और उपनाम दोनों भरें।" if is_hi else "Please enter both First Name and Last Name.")
+                        else:
+                            full_nm = f"{fn.strip()} {ln.strip()}"
+                            new_bid = (max([b["bid"] for b in all_bookings_db]) + 1) if all_bookings_db else 1
+                            cust_row = {
+                                "bid": new_bid, "trip_id": -1,
+                                "passenger": full_nm, "seat": "Customer",
+                                "vehicle": em.strip() or "No-Email", "route": "Registered",
+                                "fare": 0, "fee": 0, "driver": "CUSTOMER_ID", "phone": u_ph
+                            }
+                            with st.spinner("आपकी ID बनाई जा रही है..." if is_hi else "Creating your account..."):
+                                post_db({"action": "add_booking", "booking": cust_row})
+                            st.session_state.logged_in_user = {"name": full_nm, "phone": u_ph, "email": em.strip()}
+                            st.session_state.show_welcome = True
+                            st.rerun()
+        else:
+            st.caption("जारी रखने के लिए ऊपर अपना 10 अंकों का मोबाइल नंबर लिखें।" if is_hi else "Enter your 10-digit mobile number above to continue.")
+
+    show_footer(is_hi)
+    st.stop()
+
+# ==========================================
+# MAIN APP (AFTER LOGIN)
+# ==========================================
+curr_user = st.session_state.logged_in_user
+
+if st.session_state.show_welcome:
+    st.success(
+        f"🙏 **नमस्ते {curr_user['name']} जी! देवभूमि राइड (DevBhoomi Ride) में आपका स्वागत है।**"
+        if is_hi else
+        f"🙏 **Namaste {curr_user['name']}! Welcome to DevBhoomi Ride.**"
+    )
+    st.session_state.show_welcome = False
+
+u_col1, u_col2 = st.columns([3, 1])
+u_col1.info(f"👤 **{curr_user['name']}** | 📞 {curr_user['phone']}")
+if u_col2.button("🚪 लॉगआउट" if is_hi else "🚪 Logout", use_container_width=True):
+    st.session_state.logged_in_user = None
+    st.session_state.logged_in_driver = None
+    st.session_state.show_welcome = False
+    st.rerun()
 
 t1, t_cd, t_my, t2, t3 = st.tabs([
     "🔍 सीट बुक" if is_hi else "🔍 Book Ride",
@@ -252,7 +386,10 @@ with t1:
 
                 ca, cb = st.columns([3, 1])
                 with ca:
-                    st.markdown(f"**{trip['vehicle']}** ✅")
+                    v_parts = trip["vehicle"].split(" | ", 1)
+                    st.markdown(f"**{v_parts[0]}** ✅")
+                    if len(v_parts) > 1:
+                        st.caption(f"⚙️ {v_parts[1]}")
                     st.write(f"🛣️ **रूट:** {' ➔ '.join(trip['stops'])}" if is_hi else f"🛣️ **Route:** {' ➔ '.join(trip['stops'])}")
                     lock_txt = "🔒 *बुकिंग के बाद नंबर दिखेगा*" if is_hi else "🔒 *Unlocks after booking*"
                     st.caption(f"🕒 {trip['time']} | 👤 {trip['driver']} | 📞 {lock_txt}")
@@ -278,38 +415,33 @@ with t1:
                                 b_cols[i].button(f"{'🟩' if sv=='Available' else '🟥'} {s}", disabled=True, key=f"b_{trip['id']}_{s}")
 
                         chosen = st.selectbox("सीट चुनें:" if is_hi else "Choose Seat:", avail_seats, key=f"sel_{trip['id']}")
-                        p_user = st.text_input("आपका नाम" if is_hi else "Your Name", key=f"nm_{trip['id']}")
-                        p_phone = st.text_input("आपका 10 अंकों का मोबाइल नंबर" if is_hi else "10-digit Mobile Number", key=f"ph_{trip['id']}")
+                        st.caption(f"👤 बुकिंग नाम: **{curr_user['name']}** ({curr_user['phone']})" if is_hi else f"👤 Booking for: **{curr_user['name']}** ({curr_user['phone']})")
 
-                        btn_lbl = f"✅ बुक करें (किराया ₹{fare} + शुल्क ₹{fee})" if is_hi else f"✅ Confirm (Fare ₹{fare} + Fee ₹{fee})"
-                        if st.button(btn_lbl, key=f"bk_{trip['id']}"):
-                            if not p_user.strip() or len(p_phone.strip()) < 10:
-                                st.error("कृपया सही नाम और 10 अंकों का मोबाइल नंबर भरें।" if is_hi else "Please enter name and 10-digit mobile number.")
-                            else:
-                                new_seats = dict(trip["seats"])
-                                new_seats[chosen] = "Booked"
-                                new_bid = (max([b["bid"] for b in all_bookings_db]) + 1) if all_bookings_db else 1
-                                b_data = {
-                                    "bid": new_bid, "trip_id": trip["id"],
-                                    "passenger": f"{p_user.strip()} ({p_phone.strip()})",
-                                    "seat": chosen, "vehicle": trip["vehicle"],
-                                    "route": f"{p_stop} ➔ {d_stop}",
-                                    "fare": fare, "fee": fee, "driver": trip["driver"], "phone": trip["phone"]
-                                }
-                                with st.spinner("बुकिंग सेव हो रही है..." if is_hi else "Saving booking..."):
-                                    post_db({"action": "update_trip", "id": trip["id"], "seats": new_seats})
-                                    post_db({"action": "add_booking", "booking": b_data})
-                                wa_msg = quote(
-                                    f"नमस्ते {trip['driver']} जी, मैंने DevBhoomi Ride पर नई सीट बुक की है:\n"
-                                    f"सीट: {chosen}\nरूट: {p_stop} से {d_stop}\nसमय: {trip['time']}\n"
-                                    f"किराया: ₹{fare}\nसवारी: {p_user.strip()} ({p_phone.strip()})"
-                                )
-                                st.session_state.last_p_phone = p_phone.strip()
-                                st.session_state.latest_wa_alert = {
-                                    "seat": chosen, "driver": trip["driver"], "phone": trip["phone"],
-                                    "wa_url": f"https://wa.me/91{trip['phone']}?text={wa_msg}"
-                                }
-                                st.rerun()
+                        btn_lbl = f"✅ 1-क्लिक बुक करें (किराया ₹{fare} + शुल्क ₹{fee})" if is_hi else f"✅ 1-Click Confirm (Fare ₹{fare} + Fee ₹{fee})"
+                        if st.button(btn_lbl, key=f"bk_{trip['id']}", type="primary", use_container_width=True):
+                            new_seats = dict(trip["seats"])
+                            new_seats[chosen] = "Booked"
+                            new_bid = (max([b["bid"] for b in all_bookings_db]) + 1) if all_bookings_db else 1
+                            b_data = {
+                                "bid": new_bid, "trip_id": trip["id"],
+                                "passenger": f"{curr_user['name']} ({curr_user['phone']})",
+                                "seat": chosen, "vehicle": trip["vehicle"],
+                                "route": f"{p_stop} ➔ {d_stop}",
+                                "fare": fare, "fee": fee, "driver": trip["driver"], "phone": trip["phone"]
+                            }
+                            with st.spinner("बुकिंग सेव हो रही है..." if is_hi else "Saving booking..."):
+                                post_db({"action": "update_trip", "id": trip["id"], "seats": new_seats})
+                                post_db({"action": "add_booking", "booking": b_data})
+                            wa_msg = quote(
+                                f"नमस्ते {trip['driver']} जी, मैंने DevBhoomi Ride पर नई सीट बुक की है:\n"
+                                f"सीट: {chosen}\nरूट: {p_stop} से {d_stop}\nसमय: {trip['time']}\n"
+                                f"किराया: ₹{fare}\nसवारी: {curr_user['name']} ({curr_user['phone']})"
+                            )
+                            st.session_state.latest_wa_alert = {
+                                "seat": chosen, "driver": trip["driver"], "phone": trip["phone"],
+                                "wa_url": f"https://wa.me/91{trip['phone']}?text={wa_msg}"
+                            }
+                            st.rerun()
 
 # ==========================================
 # TAB 2: CHAR DHAM YATRA (DIRECT APP BOOKING)
@@ -335,7 +467,7 @@ with t_cd:
             cd_matched.append(trip)
 
     if not cd_matched:
-        st.info("अभी इस रूट पर कोई चारधाम गाड़ी ऑनलाइन नहीं है। ड्राइवर पैनल से नई चारधाम ट्रिप डालें!" if is_hi else "No Char Dham cabs listed yet. Drivers can post from Driver Panel!")
+        st.info("अभी इस रूट पर कोई चारधाम गाड़ी ऑनलाइन नहीं है। ड्राइवर पैनल से नई चारधाम ट्रिप डालें!" if is_hi else "No Char Dham cabs listed yet.")
     else:
         for trip in cd_matched:
             avail_opts = [s for s, status in trip["seats"].items() if status == "Available"]
@@ -348,7 +480,10 @@ with t_cd:
 
                 ca, cb = st.columns([3, 1])
                 with ca:
-                    st.markdown(f"**🕉️ {trip['vehicle']}** ✅")
+                    v_parts = trip["vehicle"].split(" | ", 1)
+                    st.markdown(f"**🕉️ {v_parts[0]}** ✅")
+                    if len(v_parts) > 1:
+                        st.info(f"🚘 **गाड़ी की सुविधाएँ:** {v_parts[1]}" if is_hi else f"🚘 **Vehicle Specs:** {v_parts[1]}")
                     st.write(f"🛣️ **यात्रा:** {' ➔ '.join(trip['stops'])}" if is_hi else f"🛣️ **Yatra:** {' ➔ '.join(trip['stops'])}")
                     lock_txt = "🔒 *बुकिंग के बाद नंबर दिखेगा*" if is_hi else "🔒 *Unlocks after booking*"
                     st.caption(f"📅 {trip['time']} | 👤 {trip['driver']} | 📞 {lock_txt}")
@@ -360,12 +495,11 @@ with t_cd:
                     with st.expander("🚕 यह गाड़ी बुक करें (नंबर अनलॉक करें)" if is_hi else "🚕 Book This Cab (Unlock Number)"):
                         cd_chosen = st.selectbox("विकल्प चुनें:" if is_hi else "Select Option:", avail_opts, key=f"cd_sel_{trip['id']}")
                         cd_date_u = st.text_input("आपकी यात्रा की तारीख (Date):" if is_hi else "Your Travel Date:", placeholder="जैसे: 15 May 2026", key=f"cd_dt_{trip['id']}")
-                        cd_uname = st.text_input("आपका नाम:" if is_hi else "Your Name:", key=f"cd_nm_{trip['id']}")
-                        cd_uphone = st.text_input("आपका 10 अंकों का मोबाइल नंबर:" if is_hi else "10-digit Mobile Number:", key=f"cd_ph_{trip['id']}")
+                        st.caption(f"👤 बुकिंग नाम: **{curr_user['name']}** ({curr_user['phone']})" if is_hi else f"👤 Booking for: **{curr_user['name']}** ({curr_user['phone']})")
 
-                        if st.button(f"✅ चारधाम बुकिंग कन्फर्म करें (₹{fare})" if is_hi else f"✅ Confirm Char Dham Booking (₹{fare})", key=f"cd_bk_{trip['id']}", type="primary"):
-                            if not (cd_uname.strip() and len(cd_uphone.strip()) >= 10 and cd_date_u.strip()):
-                                st.error("कृपया नाम, तारीख और 10 अंकों का मोबाइल नंबर भरें।" if is_hi else "Please fill name, date and 10-digit phone.")
+                        if st.button(f"✅ चारधाम बुकिंग कन्फर्म करें (₹{fare})" if is_hi else f"✅ Confirm Char Dham Booking (₹{fare})", key=f"cd_bk_{trip['id']}", type="primary", use_container_width=True):
+                            if not cd_date_u.strip():
+                                st.error("कृपया अपनी यात्रा की तारीख भरें।" if is_hi else "Please enter your travel date.")
                             else:
                                 new_seats = dict(trip["seats"])
                                 new_seats[cd_chosen] = "Booked"
@@ -373,7 +507,7 @@ with t_cd:
                                 route_txt = " ➔ ".join(trip["stops"])
                                 b_data = {
                                     "bid": new_bid, "trip_id": trip["id"],
-                                    "passenger": f"{cd_uname.strip()} ({cd_uphone.strip()})",
+                                    "passenger": f"{curr_user['name']} ({curr_user['phone']})",
                                     "seat": f"{cd_chosen} | {cd_date_u.strip()}",
                                     "vehicle": trip["vehicle"], "route": route_txt,
                                     "fare": fare, "fee": 0, "driver": trip["driver"], "phone": trip["phone"]
@@ -384,9 +518,8 @@ with t_cd:
                                 wa_msg = quote(
                                     f"नमस्ते {trip['driver']} जी, मैंने DevBhoomi Ride पर आपकी चारधाम गाड़ी बुक की है:\n"
                                     f"यात्रा: {route_txt}\nतारीख: {cd_date_u.strip()}\nविकल्प: {cd_chosen}\n"
-                                    f"रेट: ₹{fare}\nयात्री: {cd_uname.strip()} ({cd_uphone.strip()})"
+                                    f"रेट: ₹{fare}\nयात्री: {curr_user['name']} ({curr_user['phone']})"
                                 )
-                                st.session_state.last_p_phone = cd_uphone.strip()
                                 st.session_state.latest_wa_alert = {
                                     "seat": f"{cd_chosen} ({cd_date_u.strip()})", "driver": trip["driver"], "phone": trip["phone"],
                                     "wa_url": f"https://wa.me/91{trip['phone']}?text={wa_msg}"
@@ -398,7 +531,7 @@ with t_cd:
     st.link_button("🏛️ Official Uttarakhand Char Dham Yatra Registration Portal", "https://registrationandtouristcare.uk.gov.in/", use_container_width=True)
 
 # ==========================================
-# TAB 3: MY BOOKINGS (PASSENGER VIEW)
+# TAB 3: MY BOOKINGS (AUTO-LOADED FOR USER)
 # ==========================================
 with t_my:
     if st.session_state.cancel_wa_alert:
@@ -415,53 +548,45 @@ with t_my:
                 st.session_state.cancel_wa_alert = None
                 st.rerun()
 
-    st.subheader("🎫 अपनी बुक की हुई टिकट देखें" if is_hi else "🎫 Check Your Booked Tickets")
-    chk_phone = st.text_input(
-        "बुकिंग के समय डाला गया मोबाइल नंबर लिखें:" if is_hi else "Enter Mobile Number used for booking:",
-        value=st.session_state.last_p_phone,
-        placeholder="जैसे: 9876543210"
-    ).strip()
-
-    if len(chk_phone) >= 10:
-        my_list = [b for b in bookings_db if chk_phone in b["passenger"]]
-        if not my_list:
-            st.info("इस नंबर पर कोई बुकिंग नहीं मिली।" if is_hi else "No bookings found for this number.")
-        else:
-            for b in reversed(my_list):
-                t_info = trips_by_id.get(b["trip_id"], {})
-                t_time = t_info.get("time", "समय उपलब्ध नहीं")
-                t_status = t_info.get("status", "Active")
-                with st.container(border=True):
-                    if b["status"] == "Cancelled":
-                        st.error(f"❌ रद्द की गई — {b['vehicle']} | {b['seat']}" if is_hi else f"❌ Cancelled — {b['vehicle']} | {b['seat']}")
-                    else:
-                        if t_status == "Cancelled":
-                            st.warning("⚠️ ध्यान दें: ड्राइवर ने यह ट्रिप रद्द कर दी है।" if is_hi else "⚠️ Note: Driver cancelled this trip.")
-                        else:
-                            st.success(f"✅ कन्फर्म — **{b['seat']}** | 🕒 {t_time}" if is_hi else f"✅ Confirmed — **{b['seat']}** | 🕒 {t_time}")
-                        st.write(f"🚕 **{b['vehicle']}** | 🛣️ {b['route']}")
-                        st.write(f"💰 ड्राइवर को देना है: **₹{b['fare']}** | बुकिंग शुल्क: ₹{b['fee']}" if is_hi else f"💰 Pay Driver: **₹{b['fare']}** | Fee: ₹{b['fee']}")
-                        st.write(f"👤 **{b['driver']}** | 📞 **{b['phone']}**")
-                        st.link_button(
-                            "📲 ड्राइवर को व्हाट्सएप करें" if is_hi else "📲 WhatsApp Driver",
-                            b["wa"],
-                            type="primary",
-                            use_container_width=True
-                        )
-                        if st.button("❌ बुकिंग रद्द करें" if is_hi else "❌ Cancel Booking", key=f"cnl_{b['bid']}"):
-                            with st.spinner("रद्द हो रहा है..."):
-                                post_db({"action": "cancel_booking", "bid": b["bid"]})
-                                if b["trip_id"] in trips_by_id:
-                                    upd_seats = dict(trips_by_id[b["trip_id"]]["seats"])
-                                    seat_key = b["seat"].split(" | ")[0]
-                                    if seat_key in upd_seats:
-                                        upd_seats[seat_key] = "Available"
-                                        post_db({"action": "update_trip", "id": b["trip_id"], "seats": upd_seats})
-                            c_msg = quote(f"नमस्ते {b['driver']} जी, मैंने DevBhoomi Ride पर अपनी बुकिंग ({b['seat']}, {b['route']}) रद्द कर दी है। — {b['passenger']}")
-                            st.session_state.cancel_wa_alert = {"wa_url": f"https://wa.me/91{b['phone']}?text={c_msg}"}
-                            st.rerun()
+    st.subheader(f"🎫 {curr_user['name']} की बुकिंग्स" if is_hi else f"🎫 {curr_user['name']}'s Bookings")
+    my_list = [b for b in bookings_db if curr_user["phone"] in b["passenger"]]
+    if not my_list:
+        st.info("आपने अभी तक कोई सीट या गाड़ी बुक नहीं की है।" if is_hi else "You haven't booked any rides yet.")
     else:
-        st.caption("अपनी पुरानी या कल की बुकिंग देखने के लिए ऊपर 10 अंकों का मोबाइल नंबर डालें।" if is_hi else "Enter your 10-digit mobile number to view your tickets anytime.")
+        for b in reversed(my_list):
+            t_info = trips_by_id.get(b["trip_id"], {})
+            t_time = t_info.get("time", "समय उपलब्ध नहीं")
+            t_status = t_info.get("status", "Active")
+            with st.container(border=True):
+                if b["status"] == "Cancelled":
+                    st.error(f"❌ रद्द की गई — {b['vehicle'].split(' | ')[0]} | {b['seat']}" if is_hi else f"❌ Cancelled — {b['vehicle'].split(' | ')[0]} | {b['seat']}")
+                else:
+                    if t_status == "Cancelled":
+                        st.warning("⚠️ ध्यान दें: ड्राइवर ने यह ट्रिप रद्द कर दी है।" if is_hi else "⚠️ Note: Driver cancelled this trip.")
+                    else:
+                        st.success(f"✅ कन्फर्म — **{b['seat']}** | 🕒 {t_time}" if is_hi else f"✅ Confirmed — **{b['seat']}** | 🕒 {t_time}")
+                    st.write(f"🚕 **{b['vehicle']}**")
+                    st.write(f"🛣️ {b['route']}")
+                    st.write(f"💰 ड्राइवर को देना है: **₹{b['fare']}** | बुकिंग शुल्क: ₹{b['fee']}" if is_hi else f"💰 Pay Driver: **₹{b['fare']}** | Fee: ₹{b['fee']}")
+                    st.write(f"👤 **{b['driver']}** | 📞 **{b['phone']}**")
+                    st.link_button(
+                        "📲 ड्राइवर को व्हाट्सएप करें" if is_hi else "📲 WhatsApp Driver",
+                        b["wa"],
+                        type="primary",
+                        use_container_width=True
+                    )
+                    if st.button("❌ बुकिंग रद्द करें" if is_hi else "❌ Cancel Booking", key=f"cnl_{b['bid']}"):
+                        with st.spinner("रद्द हो रहा है..."):
+                            post_db({"action": "cancel_booking", "bid": b["bid"]})
+                            if b["trip_id"] in trips_by_id:
+                                upd_seats = dict(trips_by_id[b["trip_id"]]["seats"])
+                                seat_key = b["seat"].split(" | ")[0]
+                                if seat_key in upd_seats:
+                                    upd_seats[seat_key] = "Available"
+                                    post_db({"action": "update_trip", "id": b["trip_id"], "seats": upd_seats})
+                        c_msg = quote(f"नमस्ते {b['driver']} जी, मैंने DevBhoomi Ride पर अपनी बुकिंग ({b['seat']}, {b['route']}) रद्द कर दी है। — {b['passenger']}")
+                        st.session_state.cancel_wa_alert = {"wa_url": f"https://wa.me/91{b['phone']}?text={c_msg}"}
+                        st.rerun()
 
 # ==========================================
 # TAB 4: LIVE TRACKING
@@ -471,7 +596,7 @@ with t2:
     if not active_local_trips:
         st.info("अभी कोई सक्रिय लोकल ट्रिप नहीं है।" if is_hi else "No active local trips.")
     else:
-        t_map = {f"{t['vehicle']} ({t['stops'][0]} ➔ {t['stops'][-1]})": t for t in active_local_trips if t["stops"]}
+        t_map = {f"{t['vehicle'].split(' | ')[0]} ({t['stops'][0]} ➔ {t['stops'][-1]})": t for t in active_local_trips if t["stops"]}
         tr = t_map[st.selectbox("गाड़ी चुनें:" if is_hi else "Select Vehicle:", list(t_map.keys()))]
         u_stop = st.selectbox("आप किस स्टॉप पर हैं?" if is_hi else "Your Stop:", tr["stops"], index=min(1, len(tr["stops"]) - 1))
 
@@ -492,54 +617,67 @@ with t2:
                 st.markdown(f"⚪ {s}")
 
 # ==========================================
-# TAB 5: DRIVER PANEL (4-DIGIT PIN + FREE CHAR DHAM TRIP)
+# TAB 5: DRIVER PANEL (DETAILED VEHICLE SPECS)
 # ==========================================
 with t3:
     if st.session_state.logged_in_driver is None:
         st.subheader("👨‍✈️ ड्राइवर रजिस्ट्रेशन / लॉगिन" if is_hi else "👨‍✈️ Driver Registration / Login")
         ph_in = st.text_input(
-            "अपना 10 अंकों का मोबाइल नंबर डालें:" if is_hi else "Enter your 10-digit Mobile Number:",
-            placeholder="जैसे: 9876543210"
+            "अपना 10 अंकों का ड्राइवर मोबाइल नंबर डालें:" if is_hi else "Enter 10-digit Driver Mobile Number:",
+            value=curr_user["phone"],
+            max_chars=10
         ).strip()
 
-        if len(ph_in) >= 10:
+        if len(ph_in) == 10 and ph_in.isdigit():
             if ph_in in drivers_db:
                 st.success("✅ आपका नंबर पहले से रजिस्टर्ड है! लॉगिन के लिए अपना 4 अंकों का PIN डालें:" if is_hi else "✅ Registered! Enter your 4-digit PIN:")
                 with st.form("driver_login_form"):
                     pin_in = st.text_input("🔐 4 अंकों का PIN" if is_hi else "🔐 4-Digit PIN", type="password", max_chars=4)
-                    if st.form_submit_button("🚀 लॉगिन करें (ट्रिप पैनल खोलें)" if is_hi else "🚀 Login to Trip Panel"):
+                    if st.form_submit_button("🚀 लॉगिन करें (ट्रिप पैनल खोलें)" if is_hi else "🚀 Login to Trip Panel", type="primary", use_container_width=True):
                         if pin_in.strip() == drivers_db[ph_in]["pin"]:
                             st.session_state.logged_in_driver = drivers_db[ph_in]
                             st.rerun()
                         else:
                             st.error("❌ गलत PIN! कृपया सही 4 अंकों का PIN डालें।" if is_hi else "❌ Wrong PIN! Please try again.")
             else:
-                st.info("📝 नया ड्राइवर रजिस्ट्रेशन (सिर्फ़ एक बार ₹99, फिर लोकल और चारधाम ट्रिप फ्री)" if is_hi else "📝 New Driver Registration (₹99 one-time)")
+                st.info("📝 अपनी गाड़ी जोड़ें — लोकल और चारधाम बुकिंग के लिए" if is_hi else "📝 Register Your Vehicle for Local & Char Dham Rides")
                 with st.form("driver_reg_form"):
-                    r_name = st.text_input("ड्राइवर का पूरा नाम" if is_hi else "Full Name", placeholder="मनोज जोशी")
-                    r_addr = st.text_area("पूरा पता (गाँव / शहर / जिला)" if is_hi else "Full Address", placeholder="गाँव, पोस्ट, जिला...")
+                    r_name = st.text_input("ड्राइवर का पूरा नाम*" if is_hi else "Full Name*", value=curr_user["name"])
+                    r_addr = st.text_area("पूरा पता (गाँव / शहर / जिला)*" if is_hi else "Full Address*", placeholder="गाँव, पोस्ट, जिला...")
                     vt_opts = ["टैक्सी / शेयरिंग", "बाइक / स्कूटी"] if is_hi else ["Cab / Shared", "Bike / Scooty"]
                     r_vdisp = st.radio("गाड़ी का प्रकार:" if is_hi else "Vehicle Type:", vt_opts, horizontal=True)
                     r_vtype = "Bike / Scooty" if r_vdisp in ["बाइक / स्कूटी", "Bike / Scooty"] else "Cab / Shared"
-                    r_veh = st.text_input("गाड़ी का नाम और नंबर" if is_hi else "Vehicle Name & Number", placeholder="Bolero UK 04 TA 9988")
-                    r_dl = st.text_input("ड्राइविंग लाइसेंस नंबर (DL No.)" if is_hi else "Driving License Number", placeholder="UK0420200012345")
-                    r_pin = st.text_input("🔐 अपना 4 अंकों का सीक्रेट PIN बनाएं (जैसे: 2580)" if is_hi else "🔐 Create 4-Digit Secret PIN", type="password", max_chars=4)
+                    r_veh = st.text_input("गाड़ी का नाम और नंबर*" if is_hi else "Vehicle Name & Number*", placeholder="जैसे: Innova / Bolero UK 04 TA 9988")
+
+                    st.markdown("**🚘 गाड़ी की कंडीशन और सुविधाएँ (यात्रियों को दिखेंगी):**" if is_hi else "**🚘 Vehicle Condition & Specs (Shown to Tourists):**")
+                    vc1, vc2, vc3 = st.columns(3)
+                    r_ac = vc1.selectbox("AC / Non-AC:", ["AC", "Non-AC"])
+                    r_fuel = vc2.selectbox("ईंधन (Fuel):" if is_hi else "Fuel:", ["Diesel", "Petrol", "CNG", "EV"])
+                    r_seat = vc3.selectbox("सीटर (Seater):", ["4 Seater", "6-7 Seater", "9-10 Seater", "12-17 Seater Tempo", "1 Seater (Bike)"])
+
+                    extra_opts = ["Roof Carrier (सामान कैरियर)", "Music System", "First-Aid Kit"]
+                    r_extras = st.multiselect("अन्य सुविधाएँ चुनें (वैकल्पिक):" if is_hi else "Extra Amenities (Optional):", extra_opts, default=["Roof Carrier (सामान कैरियर)"])
+
+                    r_dl = st.text_input("ड्राइविंग लाइसेंस नंबर (DL No.)*" if is_hi else "Driving License Number*", placeholder="UK0420200012345")
+                    r_pin = st.text_input("🔐 अपना 4 अंकों का सीक्रेट PIN बनाएं (जैसे: 2580)*" if is_hi else "🔐 Create 4-Digit Secret PIN*", type="password", max_chars=4)
 
                     st.warning("💳 **रजिस्ट्रेशन शुल्क: ₹99 (केवल एक बार)**" if is_hi else "💳 **Registration Fee: ₹99 (One-Time)**")
                     paid_ok = st.checkbox("✅ मैंने ₹99 रजिस्ट्रेशन शुल्क जमा कर दिया है (Demo)" if is_hi else "✅ Paid ₹99 Registration Fee (Demo)")
 
-                    if st.form_submit_button("🚀 रजिस्ट्रेशन पूरा करें और ट्रिप डालें" if is_hi else "🚀 Register & Open Trip Panel"):
+                    if st.form_submit_button("🚀 रजिस्ट्रेशन पूरा करें और ट्रिप डालें" if is_hi else "🚀 Register & Open Trip Panel", type="primary", use_container_width=True):
                         if not (r_name and r_addr and r_veh and r_dl):
-                            st.error("कृपया सभी जानकारी भरें।" if is_hi else "Please fill all fields.")
+                            st.error("कृपया सभी ज़रूरी जानकारी भरें।" if is_hi else "Please fill all required fields.")
                         elif not (len(r_pin.strip()) == 4 and r_pin.strip().isdigit()):
                             st.error("कृपया 4 अंकों का नंबर वाला PIN बनाएं (जैसे 2580)।" if is_hi else "Please create a 4-digit numeric PIN.")
                         elif not paid_ok:
                             st.error("कृपया ₹99 शुल्क कन्फर्म करें।" if is_hi else "Please confirm ₹99 fee.")
                         else:
                             pin_clean = r_pin.strip()
+                            specs_list = [r_ac, r_fuel, r_seat] + r_extras
+                            full_veh_str = f"{r_veh.strip()} | {' • '.join(specs_list)}"
                             new_drv_db = {
                                 "name": r_name.strip(), "phone": ph_in, "address": r_addr.strip(),
-                                "vehicle_type": r_vtype, "vehicle": r_veh.strip(),
+                                "vehicle_type": r_vtype, "vehicle": full_veh_str,
                                 "license": f"{r_dl.strip()} | PIN:{pin_clean}", "reg_paid": True
                             }
                             with st.spinner("रजिस्ट्रेशन सेव हो रहा है..."):
@@ -548,16 +686,16 @@ with t3:
                             new_drv_session["license"] = r_dl.strip()
                             new_drv_session["pin"] = pin_clean
                             st.session_state.logged_in_driver = new_drv_session
-                            st.success("🎉 रजिस्ट्रेशन सफल! अब आप रोज़ फ्री में ट्रिप डाल सकते हैं।" if is_hi else "🎉 Registered!")
+                            st.success("🎉 रजिस्ट्रेशन सफल! अब आप लोकल और चारधाम ट्रिप डाल सकते हैं।" if is_hi else "🎉 Registered!")
                             st.rerun()
         else:
-            st.caption("नया रजिस्ट्रेशन करने या रोज़ की ट्रिप डालने के लिए ऊपर अपना 10 अंकों का मोबाइल नंबर लिखें।" if is_hi else "Enter your 10-digit mobile number.")
+            st.caption("नया रजिस्ट्रेशन करने या ट्रिप डालने के लिए ऊपर अपना 10 अंकों का मोबाइल नंबर लिखें।" if is_hi else "Enter your 10-digit mobile number.")
 
     else:
         drv = st.session_state.logged_in_driver
         c_top1, c_top2 = st.columns([3, 1])
-        c_top1.success(f"👤 स्वागत है, **{drv['name']}** ({drv['vehicle']}) ✅" if is_hi else f"👤 Welcome, **{drv['name']}** ✅")
-        if c_top2.button("🚪 लॉगआउट" if is_hi else "🚪 Logout"):
+        c_top1.success(f"👤 ड्राइवर पैनल: **{drv['name']}** ({drv['vehicle'].split(' | ')[0]}) ✅" if is_hi else f"👤 Driver Panel: **{drv['name']}** ✅")
+        if c_top2.button("🔒 लॉक करें" if is_hi else "🔒 Lock Panel"):
             st.session_state.logged_in_driver = None
             st.rerun()
 
@@ -610,7 +748,7 @@ with t3:
 
         with d_cd:
             st.subheader("🕉️ चारधाम यात्रा के लिए अपनी गाड़ी डालें (बिल्कुल फ्री)" if is_hi else "🕉️ Post Your Cab for Char Dham (100% Free)")
-            st.caption("यहाँ डाली गई गाड़ी यात्रियों को '🕉️ चारधाम यात्रा' टैब में दिखेगी। बुकिंग आने पर आपको '📋 मेरी बुकिंग्स' में दिखेगा।" if is_hi else "Your listing will appear in the Char Dham tab. Confirmed bookings show up in My Bookings.")
+            st.caption("आपकी गाड़ी की सारी डिटेल (AC/Fuel/Seater) यात्रियों को अपने आप दिखेंगी।" if is_hi else "Your vehicle specs (AC/Fuel/Seater) will be shown automatically to tourists.")
             with st.form("add_cd_trip"):
                 cc1, cc2 = st.columns(2)
                 cd_p = cc1.selectbox("कहाँ से पिकअप करेंगे?" if is_hi else "Pickup City:", ["Haridwar", "Rishikesh", "Dehradun", "Delhi / NCR", "Kathgodam / Haldwani"])
@@ -679,7 +817,7 @@ with t3:
             if not my_trips:
                 st.info("आपकी अभी कोई सक्रिय ट्रिप नहीं है।" if is_hi else "No active trips.")
             else:
-                d_map = {f"{'🕉️ ' if t['vehicle_type']=='CharDham' else '🚕 '}{t['vehicle']} ({t['stops'][0]} ➔ {t['stops'][-1]})": t for t in my_trips if t["stops"]}
+                d_map = {f"{'🕉️ ' if t['vehicle_type']=='CharDham' else '🚕 '}{t['vehicle'].split(' | ')[0]} ({t['stops'][0]} ➔ {t['stops'][-1]})": t for t in my_trips if t["stops"]}
                 st_trip = d_map[st.selectbox("अपनी ट्रिप चुनें:" if is_hi else "Select Trip:", list(d_map.keys()))]
                 if st_trip["vehicle_type"] != "CharDham":
                     n_stop = st.selectbox("अभी कहाँ पहुँचे हैं?" if is_hi else "Current Location:", st_trip["stops"], index=st_trip["current_stop_idx"])
@@ -713,53 +851,4 @@ with t3:
 # ==========================================
 # FOOTER: 24x7 HELP & SUPPORT + TERMS
 # ==========================================
-st.divider()
-with st.expander("🆘 मदद / Help & Support (24x7)"):
-    st.caption(
-        "किसी भी शिकायत, गाड़ी में छूटे सामान, या ड्राइवर PIN रीसेट के लिए नीचे क्लिक करें:"
-        if is_hi else
-        "For complaints, lost items, or Driver PIN reset, contact DevBhoomi Support:"
-    )
-    sup_msg = quote("नमस्ते DevBhoomi Ride Support, मुझे मदद चाहिए:")
-    sc1, sc2 = st.columns(2)
-    sc1.link_button(
-        "💬 DevBhoomi Support (WhatsApp)" if is_hi else "💬 WhatsApp Support",
-        f"https://wa.me/{SUPPORT_WHATSAPP}?text={sup_msg}",
-        type="primary",
-        use_container_width=True
-    )
-    sc2.link_button(
-        "🚨 Emergency Police / SDRF (112)" if is_hi else "🚨 Emergency SOS (112)",
-        "tel:112",
-        use_container_width=True
-    )
-
-with st.expander("📜 नियम और शर्तें / Terms & Privacy Policy"):
-    if is_hi:
-        st.markdown("""
-**📜 नियम और शर्तें (Terms & Conditions):**
-1. **प्लेटफ़ॉर्म की भूमिका:** DevBhoomi Ride केवल एक ऑनलाइन बुकिंग प्लेटफ़ॉर्म है जो यात्रियों और लोकल ड्राइवरों को आपस में जोड़ता है। गाड़ी की कंडीशन, वैध लाइसेंस (DL), कागज़ात और सुरक्षित ड्राइविंग की पूरी ज़िम्मेदारी संबंधित ड्राइवर की होगी।
-2. **किराया और यात्रा नियम:** लोकल या चारधाम यात्रा का किराया, टोल, पार्किंग और पहाड़ों पर चढ़ाई के समय AC बंद रहने जैसे नियम यात्री और ड्राइवर के बीच लागू होंगे।
-3. **रद्द करना (Cancellation):** सीट या ट्रिप रद्द करने पर कृपया ऐप में तुरंत रद्द करें और सामने वाले को व्हाट्सएप पर सूचित करें। बार-बार फर्जी बुकिंग करने पर नंबर ब्लॉक किया जा सकता है।
-4. **सुरक्षा और सामान:** यात्रा के दौरान अपने कीमती सामान की ज़िम्मेदारी यात्री की स्वयं की होगी। बाइक/स्कूटी राइड के लिए हेलमेट अनिवार्य है। किसी भी आपात स्थिति में **112** पर कॉल करें।
-
----
-**🔒 गोपनीयता नीति (Privacy Policy):**
-1. **डेटा संग्रह:** हम केवल वही जानकारी लेते हैं जो बुकिंग के लिए ज़रूरी है (नाम, मोबाइल नंबर, और ड्राइवरों के लिए गाड़ी नंबर, पता व लाइसेंस)।
-2. **नंबर की सुरक्षा:** यात्री और ड्राइवर का मोबाइल नंबर केवल बुकिंग कन्फर्म होने के बाद ही एक-दूसरे को दिखता है। हम आपका डेटा किसी भी बाहरी कंपनी को नहीं बेचते।
-3. **डेटा हटाना:** यदि कोई ड्राइवर या यात्री अपना डेटा हटवाना चाहता है, तो ऊपर दिए गए Support WhatsApp पर संदेश भेजकर हटवा सकता है।
-        """)
-    else:
-        st.markdown("""
-**📜 Terms & Conditions:**
-1. **Platform Role:** DevBhoomi Ride is only an online booking platform connecting passengers and local drivers. Vehicle condition, valid Driving License, documents, and safe driving are the sole responsibility of the driver.
-2. **Fare & Travel Rules:** Local or Char Dham fares, tolls, parking, and mountain rules (such as AC off on steep climbs) apply directly between the passenger and driver.
-3. **Cancellations:** If cancelling a seat or trip, please cancel immediately in the app and inform via WhatsApp. Repeated fake bookings may lead to number blocking.
-4. **Safety & Luggage:** Passengers are responsible for their own luggage and valuables. Helmets are mandatory for Bike/Scooty rides. Call **112** in any emergency.
-
----
-**🔒 Privacy Policy:**
-1. **Data Collection:** We only collect details required for booking (Name, Mobile Number, and Vehicle/Address/DL details for drivers).
-2. **Number Privacy:** Driver and passenger contact numbers are shared with each other only after booking confirmation. We never sell user data to third parties.
-3. **Data Removal:** Any driver or passenger can request deletion of their data anytime via the Support WhatsApp button above.
-        """)
+show_footer(is_hi)
