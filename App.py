@@ -361,6 +361,8 @@ def load_from_sheet() -> None:
                 st.session_state.drivers = parsed["drivers"]
             if isinstance(parsed.get("bookings"), list):
                 st.session_state.bookings = parsed["bookings"]
+            if isinstance(parsed.get("users"), list):
+                st.session_state.users = parsed["users"]
     except Exception:
         pass
     st.session_state.sheet_loaded = True
@@ -372,6 +374,8 @@ if "drivers" not in st.session_state:
     st.session_state.drivers = [dict(d) for d in DEFAULT_DRIVERS]
 if "bookings" not in st.session_state:
     st.session_state.bookings = []
+if "users" not in st.session_state:
+    st.session_state.users = []
 if "screen" not in st.session_state:
     st.session_state.screen = "login"
 if "trip_substep" not in st.session_state:
@@ -399,6 +403,22 @@ if "show_legal_modal" not in st.session_state:
     st.session_state.show_legal_modal = None
 
 load_from_sheet()
+
+# --- Auto-restore login if user phone is saved in URL query params ---
+saved_u = str(st.query_params.get("u", "")).strip()
+if saved_u and st.session_state.screen == "login" and not st.session_state.get("manual_logout"):
+    matched_u = next((u for u in st.session_state.users if str(u.get("phone", "")).strip() == saved_u), None)
+    if matched_u:
+        st.session_state.passenger_user = {
+            "name": str(matched_u.get("name", "")),
+            "phone": saved_u,
+            "email": str(matched_u.get("email", "")),
+            "photo_b64": str(matched_u.get("photo_b64", "")),
+        }
+        if matched_u.get("lang") in ("hi", "en"):
+            st.session_state.lang = matched_u["lang"]
+        st.session_state.screen = "home"
+
 T = TEXT[st.session_state.lang]
 
 
@@ -471,8 +491,33 @@ def persist_state() -> None:
             "action": "sync_all",
             "drivers": st.session_state.drivers,
             "bookings": st.session_state.bookings,
+            "users": st.session_state.users,
         }
     )
+
+
+def save_user_profile_to_sheet() -> None:
+    u_phone = st.session_state.passenger_user["phone"].strip()
+    if not u_phone:
+        return
+    record = {
+        "phone": u_phone,
+        "name": st.session_state.passenger_user["name"].strip(),
+        "email": st.session_state.passenger_user["email"].strip(),
+        "lang": st.session_state.lang,
+        "photo_b64": st.session_state.passenger_user.get("photo_b64", ""),
+    }
+    updated = False
+    for i, u in enumerate(st.session_state.users):
+        if str(u.get("phone", "")).strip() == u_phone:
+            st.session_state.users[i] = record
+            updated = True
+            break
+    if not updated:
+        st.session_state.users.append(record)
+    st.query_params["u"] = u_phone
+    st.session_state.manual_logout = False
+    persist_state()
 
 
 # =====================================================================
@@ -522,9 +567,23 @@ if st.session_state.screen == "login":
         if not p_phone.strip() or not p_email.strip():
             st.error(T["login_err"])
         else:
-            st.session_state.passenger_user["phone"] = p_phone.strip()
-            st.session_state.passenger_user["email"] = p_email.strip()
-            st.session_state.screen = "create_profile"
+            clean_p = p_phone.strip()
+            existing_u = next((u for u in st.session_state.users if str(u.get("phone", "")).strip() == clean_p), None)
+            if existing_u and str(existing_u.get("name", "")).strip():
+                st.session_state.passenger_user = {
+                    "name": str(existing_u["name"]).strip(),
+                    "phone": clean_p,
+                    "email": p_email.strip(),
+                    "photo_b64": str(existing_u.get("photo_b64", "")),
+                }
+                st.query_params["u"] = clean_p
+                st.session_state.manual_logout = False
+                save_user_profile_to_sheet()
+                st.session_state.screen = "home"
+            else:
+                st.session_state.passenger_user["phone"] = clean_p
+                st.session_state.passenger_user["email"] = p_email.strip()
+                st.session_state.screen = "create_profile"
             st.rerun()
 
 # =====================================================================
@@ -587,6 +646,7 @@ else:
                 st.error(T["name_err"])
             else:
                 st.session_state.passenger_user["name"] = prof_name.strip()
+                save_user_profile_to_sheet()
                 st.session_state.screen = "home"
                 st.rerun()
 
@@ -612,6 +672,8 @@ else:
             st.rerun()
 
         if st.button(T["logout_btn"]):
+            st.query_params.clear()
+            st.session_state.manual_logout = True
             st.session_state.screen = "login"
             st.rerun()
 
@@ -807,6 +869,7 @@ else:
         uploaded_photo = st.file_uploader(T["upload_photo"], type=["png", "jpg", "jpeg"], key="prof_page_up")
         if uploaded_photo is not None:
             st.session_state.passenger_user["photo_b64"] = base64.b64encode(uploaded_photo.getvalue()).decode("utf-8")
+            save_user_profile_to_sheet()
 
         if st.session_state.passenger_user["photo_b64"]:
             st.image(base64.b64decode(st.session_state.passenger_user["photo_b64"]), width=140)
@@ -961,6 +1024,7 @@ else:
         new_s_lang = "hi" if s_lang_choice == "हिंदी (देवनागरी)" else "en"
         if new_s_lang != st.session_state.lang:
             st.session_state.lang = new_s_lang
+            save_user_profile_to_sheet()
             st.rerun()
 
         st.divider()
@@ -973,7 +1037,7 @@ else:
             value=st.session_state.settings["low_network_mode"],
         )
 
-    # --- FOOTER (सिर्फ login के बाद वाली screens पर) ---
+    # --- FOOTER ---
     st.divider()
     f1, f2 = st.columns(2)
     with f1:
