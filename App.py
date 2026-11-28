@@ -14,20 +14,20 @@ st.set_page_config(
 
 DB_URL = "https://script.google.com/macros/s/AKfycby3A2XJ0_hrgcs0IRy-pnJzQWmXmwrndsQXZEN73EjNoKKlSIW83dxnjqGp4L6yZ15heQ/exec"
 
-# --- Warm / Orange Theme + बड़े साफ बॉक्स (बिना demo/placeholder के) ---
+# --- Teal / Slate Theme + बड़े साफ बॉक्स (बिना demo/placeholder के) ---
 st.markdown(
     """
     <style>
     .stApp {
-        background: linear-gradient(180deg, #fff4eb 0%, #ffe8d6 100%);
+        background: linear-gradient(180deg, #f0fdfa 0%, #ccfbf1 100%);
     }
     .top-brand-card {
-        background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+        background: linear-gradient(135deg, #0f766e 0%, #115e59 100%);
         color: #ffffff;
         padding: 18px 20px;
         border-radius: 16px;
         margin-bottom: 14px;
-        box-shadow: 0 4px 14px rgba(234, 88, 12, 0.22);
+        box-shadow: 0 4px 14px rgba(15, 118, 110, 0.22);
     }
     .top-brand-card h2 {
         color: #ffffff !important;
@@ -35,7 +35,7 @@ st.markdown(
         font-size: 24px !important;
     }
     .top-brand-card p {
-        color: #fff7ed !important;
+        color: #ccfbf1 !important;
         margin: 0 !important;
         font-size: 14px !important;
     }
@@ -56,12 +56,12 @@ st.markdown(
         font-weight: 700 !important;
         border-radius: 12px !important;
         width: 100% !important;
-        background-color: #ea580c !important;
+        background-color: #0f766e !important;
         color: #ffffff !important;
         border: none !important;
     }
     div.stButton > button:hover {
-        background-color: #c2410c !important;
+        background-color: #115e59 !important;
         color: #ffffff !important;
     }
     </style>
@@ -69,20 +69,18 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# --- Bilingual Text Dictionary (Hindi Devanagari & English) ---
 TEXT = {
     "hi": {
         "brand_title": "🚗 देवभूमि राइड",
         "brand_sub": "उत्तराखंड के लोकल गांव, बाज़ार और चारधाम व पर्यटन रूट्स के लिए",
         "settings_btn": "⚙️ सेटिंग्स",
-        "low_net_msg": "📶 नेटवर्क कनेक्शन धीमा हो सकता है — कृपया प्रतीक्षा करें, आपकी प्रक्रिया जारी है।",
-        "login_title": "लॉगिन करें",
-        "enter_phone": "मोबाइल नंबर दर्ज करें",
-        "login_next_btn": "➡️ लॉगिन करें / आगे बढ़ें",
-        "login_err": "कृपया अपना मोबाइल नंबर दर्ज करें।",
-        "driver_panel_entry": "🚕 ड्राइवर पैनल (अलग लॉगिन)",
-        "create_profile_title": "प्रोफ़ाइल बनाएं (Create Profile)",
+        "low_net_msg": "📶 नेटवर्क कनेक्शन धीमा हो सकता है — कृपया प्रतीक्षा करें।",
         "choose_lang_label": "भाषा चुनें / Select Language",
+        "enter_phone": "मोबाइल नंबर दर्ज करें",
+        "enter_email": "ईमेल दर्ज करें",
+        "login_next_btn": "➡️ लॉगिन करें / आगे बढ़ें",
+        "login_err": "कृपया मोबाइल नंबर और ईमेल दर्ज करें।",
+        "create_profile_title": "प्रोफ़ाइल बनाएं (Create Profile)",
         "enter_name": "आपका पूरा नाम दर्ज करें",
         "upload_photo": "प्रोफ़ाइल फ़ोटो जोड़ें / बदलें (वैकल्पिक)",
         "save_profile_btn": "✅ प्रोफ़ाइल सेव करें और आगे बढ़ें",
@@ -131,6 +129,7 @@ TEXT = {
         "no_photo_cap": "अभी प्रोफ़ाइल फ़ोटो नहीं लगाई गई है।",
         "name_lbl": "नाम",
         "phone_lbl": "मोबाइल नंबर",
+        "email_lbl": "ईमेल",
         "rating_lbl": "रेटिंग",
         "rating_note": "यात्रा पूर्ण होने पर रेटिंग अपडेट होगी",
         "driver_panel_title": "🚕 ड्राइवर पैनल",
@@ -158,14 +157,13 @@ TEXT = {
         "brand_title": "🚗 DevBhoomi Ride",
         "brand_sub": "For local Uttarakhand village, market, Char Dham & tourist routes",
         "settings_btn": "⚙️ Settings",
-        "low_net_msg": "📶 Network connection may be slow — please wait, your request is processing.",
-        "login_title": "Login",
-        "enter_phone": "Enter Mobile Number",
-        "login_next_btn": "➡️ Login / Continue",
-        "login_err": "Please enter your mobile number.",
-        "driver_panel_entry": "🚕 Driver Panel (Separate Login)",
-        "create_profile_title": "Create Profile",
+        "low_net_msg": "📶 Network connection may be slow — please wait.",
         "choose_lang_label": "भाषा चुनें / Select Language",
+        "enter_phone": "Enter Mobile Number",
+        "enter_email": "Enter Email",
+        "login_next_btn": "➡️ Login / Continue",
+        "login_err": "Please enter mobile number and email.",
+        "create_profile_title": "Create Profile",
         "enter_name": "Enter Your Full Name",
         "upload_photo": "Add / Change Profile Photo (Optional)",
         "save_profile_btn": "✅ Save Profile & Continue",
@@ -214,6 +212,7 @@ TEXT = {
         "no_photo_cap": "No profile photo uploaded yet.",
         "name_lbl": "Name",
         "phone_lbl": "Mobile Number",
+        "email_lbl": "Email",
         "rating_lbl": "Rating",
         "rating_note": "Rating updates after trip completion",
         "driver_panel_title": "🚕 Driver Panel",
@@ -368,17 +367,17 @@ def load_from_sheet() -> None:
 
 
 if "lang" not in st.session_state:
-    st.session_state.lang = "hi"  # "hi" | "en"
+    st.session_state.lang = "hi"
 if "drivers" not in st.session_state:
     st.session_state.drivers = [dict(d) for d in DEFAULT_DRIVERS]
 if "bookings" not in st.session_state:
     st.session_state.bookings = []
 if "screen" not in st.session_state:
-    st.session_state.screen = "login"  # login | create_profile | home | book_trip | my_bookings | profile | driver_panel | settings
+    st.session_state.screen = "login"
 if "trip_substep" not in st.session_state:
     st.session_state.trip_substep = 1
 if "passenger_user" not in st.session_state:
-    st.session_state.passenger_user = {"name": "", "phone": "", "photo_b64": ""}
+    st.session_state.passenger_user = {"name": "", "phone": "", "email": "", "photo_b64": ""}
 if "draft_booking" not in st.session_state:
     st.session_state.draft_booking = {
         "trip_type_idx": 0,
@@ -476,9 +475,10 @@ def persist_state() -> None:
     )
 
 
-# --- Top Bar: Brand + Right Side Settings Button ---
-top_left, top_right = st.columns([4, 1])
-with top_left:
+# =====================================================================
+# FIRST SCREEN: ONLY LANGUAGE SELECT + MOBILE NUMBER + EMAIL + LOGIN
+# =====================================================================
+if st.session_state.screen == "login":
     st.markdown(
         f"""
         <div class="top-brand-card">
@@ -488,50 +488,10 @@ with top_left:
         """,
         unsafe_allow_html=True,
     )
-with top_right:
-    if st.button(T["settings_btn"]):
-        st.session_state.screen = "settings"
-        st.rerun()
-
-if st.session_state.settings["low_network_mode"]:
-    st.info(T["low_net_msg"])
-
-# =====================================================================
-# 1. FIRST PAGE: LOGIN SCREEN
-# =====================================================================
-if st.session_state.screen == "login":
-    st.subheader(T["login_title"])
-
-    st.markdown(f"### {T['enter_phone']}")
-    p_phone = st.text_input(
-        "login_phone",
-        value=st.session_state.passenger_user["phone"],
-        placeholder="",
-        label_visibility="collapsed",
-    )
-
-    if st.button(T["login_next_btn"]):
-        if not p_phone.strip():
-            st.error(T["login_err"])
-        else:
-            st.session_state.passenger_user["phone"] = p_phone.strip()
-            st.session_state.screen = "create_profile"
-            st.rerun()
-
-    st.divider()
-    if st.button(T["driver_panel_entry"]):
-        st.session_state.screen = "driver_panel"
-        st.rerun()
-
-# =====================================================================
-# 2. CREATE PROFILE WINDOW (Login के बाद — ऊपर दोनों भाषा चुनने का विकल्प)
-# =====================================================================
-elif st.session_state.screen == "create_profile":
-    st.subheader(T["create_profile_title"])
 
     st.markdown(f"### {T['choose_lang_label']}")
     lang_choice = st.radio(
-        "language_selector",
+        "first_lang_selector",
         ["हिंदी (देवनागरी)", "English"],
         index=0 if st.session_state.lang == "hi" else 1,
         horizontal=True,
@@ -542,438 +502,490 @@ elif st.session_state.screen == "create_profile":
         st.session_state.lang = new_lang
         st.rerun()
 
-    st.divider()
-    st.markdown(f"### {T['enter_name']}")
-    prof_name = st.text_input(
-        "prof_name",
-        value=st.session_state.passenger_user["name"],
-        placeholder="",
-        label_visibility="collapsed",
-    )
-
-    prof_photo = st.file_uploader(T["upload_photo"], type=["png", "jpg", "jpeg"], key="init_prof_photo")
-    if prof_photo is not None:
-        st.session_state.passenger_user["photo_b64"] = base64.b64encode(prof_photo.getvalue()).decode("utf-8")
-
-    if st.session_state.passenger_user["photo_b64"]:
-        st.image(base64.b64decode(st.session_state.passenger_user["photo_b64"]), width=120)
-
-    if st.button(T["save_profile_btn"]):
-        if not prof_name.strip():
-            st.error(T["name_err"])
-        else:
-            st.session_state.passenger_user["name"] = prof_name.strip()
-            st.session_state.screen = "home"
-            st.rerun()
-
-# =====================================================================
-# 3. HOME MENU
-# =====================================================================
-elif st.session_state.screen == "home":
-    st.subheader(f"{T['welcome']}, {st.session_state.passenger_user['name'] or 'User'}")
-
-    if st.button(T["book_trip_btn"]):
-        st.session_state.trip_substep = 1
-        st.session_state.screen = "book_trip"
-        st.rerun()
-
-    if st.button(T["my_bookings_btn"]):
-        st.session_state.screen = "my_bookings"
-        st.rerun()
-
-    if st.button(T["profile_btn"]):
-        st.session_state.screen = "profile"
-        st.rerun()
-
-    if st.button(T["driver_panel_btn"]):
-        st.session_state.screen = "driver_panel"
-        st.rerun()
-
-    if st.button(T["logout_btn"]):
-        st.session_state.screen = "login"
-        st.rerun()
-
-# =====================================================================
-# 4. BOOK YOUR TRIP
-# =====================================================================
-elif st.session_state.screen == "book_trip":
-    if st.button(T["main_menu_btn"]):
-        st.session_state.screen = "home"
-        st.rerun()
-
-    sub = st.session_state.trip_substep
-    draft = st.session_state.draft_booking
-    st.subheader(f"{T['book_trip_title']} — {T['step_lbl']} {min(sub, 4)} / 4")
-
-    if sub == 1:
-        st.markdown(f"### {T['trip_type_q']}")
-        trip_opts = [T["trip_opt_1"], T["trip_opt_2"]]
-        chosen_trip = st.radio(
-            "trip_type",
-            trip_opts,
-            index=draft["trip_type_idx"],
-            label_visibility="collapsed",
-        )
-        draft["trip_type_idx"] = trip_opts.index(chosen_trip)
-
-        st.markdown(f"### {T['veh_cat_q']}")
-        draft["vehicle_type"] = st.radio(
-            "veh_cat",
-            ["4-Wheeler", "2-Wheeler"],
-            index=0 if draft["vehicle_type"] == "4-Wheeler" else 1,
-            horizontal=True,
-            label_visibility="collapsed",
-        )
-
-        if draft["trip_type_idx"] == 0:
-            st.markdown(f"### {T['spots_title']}")
-            st.write(" • ".join(HIGHLIGHT_SPOTS))
-
-        if st.button(T["next_from_to"]):
-            st.session_state.trip_substep = 2
-            st.rerun()
-
-    elif sub == 2:
-        loc_list = list(LOCATIONS.keys())
-        st.markdown(f"### {T['from_q']}")
-        p_idx = loc_list.index(draft["pickup"]) if draft["pickup"] in loc_list else 0
-        draft["pickup"] = st.selectbox("from_loc", loc_list, index=p_idx, label_visibility="collapsed")
-
-        st.markdown(f"### {T['to_q']}")
-        d_idx = loc_list.index(draft["drop"]) if draft["drop"] in loc_list else 3
-        draft["drop"] = st.selectbox("to_loc", loc_list, index=d_idx, label_visibility="collapsed")
-
-        km = estimate_road_km(draft["pickup"], draft["drop"])
-        draft["distance_km"] = km
-        st.success(f"📏 {T['dist_est']} **{km} km**")
-        st.caption(T["dist_note"])
-
-        c1, c2 = st.columns(2)
-        with c1:
-            if st.button(T["back_btn"]):
-                st.session_state.trip_substep = 1
-                st.rerun()
-        with c2:
-            if st.button(T["next_veh"]):
-                st.session_state.trip_substep = 3
-                st.rerun()
-
-    elif sub == 3:
-        st.markdown(f"### {T['choose_veh_q']}")
-        available_drivers = [
-            d
-            for d in st.session_state.drivers
-            if str(d.get("status", "")).strip() == "Available"
-            and str(d.get("category", "")).strip() == draft["vehicle_type"]
-            and is_driver_subscription_valid(d)
-        ]
-
-        if not available_drivers:
-            st.warning(T["no_veh_warn"])
-            if st.button(T["back_btn"]):
-                st.session_state.trip_substep = 2
-                st.rerun()
-        else:
-            options = {
-                f"{d['vehicle_name']} ({d['vehicle_no']}) — {d['name']} ({d.get('rating', '4.8 ★')})": d["vehicle_no"]
-                for d in available_drivers
-            }
-            selected_label = st.selectbox("avail_vehs", list(options.keys()), label_visibility="collapsed")
-            draft["driver_vehicle_no"] = options[selected_label]
-
-            c1, c2 = st.columns(2)
-            with c1:
-                if st.button(T["back_btn"]):
-                    st.session_state.trip_substep = 2
-                    st.rerun()
-            with c2:
-                if st.button(T["next_confirm"]):
-                    st.session_state.trip_substep = 4
-                    st.rerun()
-
-    elif sub == 4:
-        trip_label = T["trip_opt_1"] if draft["trip_type_idx"] == 0 else T["trip_opt_2"]
-        st.markdown(f"### {T['confirm_title']}")
-        st.write(f"**{T['passenger_lbl']}:** {st.session_state.passenger_user['name']} ({st.session_state.passenger_user['phone']})")
-        st.write(f"**{T['trip_lbl']}:** {trip_label}")
-        st.write(f"**{T['route_lbl']}:** {draft['pickup']} ➔ {draft['drop']} (**~{draft['distance_km']} km**)")
-        st.write(f"**{T['veh_no_lbl']}:** {draft['driver_vehicle_no']}")
-
-        c1, c2 = st.columns(2)
-        with c1:
-            if st.button(T["back_btn"]):
-                st.session_state.trip_substep = 3
-                st.rerun()
-        with c2:
-            if st.button(T["confirm_booking_btn"]):
-                target = get_driver_by_vehicle(draft["driver_vehicle_no"])
-                if not target or str(target.get("status", "")).strip() != "Available":
-                    st.error(T["veh_unavail_err"])
-                else:
-                    new_booking = {
-                        "id": len(st.session_state.bookings) + 1,
-                        "passenger_name": st.session_state.passenger_user["name"],
-                        "passenger_phone": st.session_state.passenger_user["phone"],
-                        "trip_type": trip_label,
-                        "pickup": draft["pickup"],
-                        "drop": draft["drop"],
-                        "distance_km": draft["distance_km"],
-                        "driver_phone": str(target["phone"]),
-                        "driver_name": str(target["name"]),
-                        "vehicle_no": str(target["vehicle_no"]),
-                        "status": "Waiting for Driver Confirmation",
-                        "notice": "",
-                    }
-                    st.session_state.bookings.append(new_booking)
-                    persist_state()
-                    st.session_state.trip_substep = 5
-                    st.rerun()
-
-    elif sub == 5 and st.session_state.bookings:
-        latest = st.session_state.bookings[-1]
-        st.success(T["booking_sent"])
-        st.info(T["waiting_driver"])
-        st.write(f"**{T['route_lbl']}:** {latest['pickup']} ➔ {latest['drop']} (~{latest['distance_km']} km)")
-        st.write(f"**{T['driver_lbl']}:** {latest['driver_name']} ({latest['vehicle_no']}) | **{T['contact_lbl']}:** {latest['driver_phone']}")
-        if st.button(T["new_booking_btn"]):
-            st.session_state.trip_substep = 1
-            st.rerun()
-
-# =====================================================================
-# 5. MY BOOKINGS
-# =====================================================================
-elif st.session_state.screen == "my_bookings":
-    if st.button(T["main_menu_btn"]):
-        st.session_state.screen = "home"
-        st.rerun()
-
-    st.subheader(T["my_bookings_title"])
     st.markdown(f"### {T['enter_phone']}")
-    m_phone = st.text_input(
-        "my_booking_phone",
+    p_phone = st.text_input(
+        "login_phone",
         value=st.session_state.passenger_user["phone"],
         placeholder="",
         label_visibility="collapsed",
     )
-    st.session_state.passenger_user["phone"] = m_phone.strip()
 
-    if st.button(T["refresh_status_btn"]):
-        st.session_state.sheet_loaded = False
-        load_from_sheet()
-        st.rerun()
+    st.markdown(f"### {T['enter_email']}")
+    p_email = st.text_input(
+        "login_email",
+        value=st.session_state.passenger_user["email"],
+        placeholder="",
+        label_visibility="collapsed",
+    )
 
-    if m_phone.strip():
-        found = [
-            b
-            for b in reversed(st.session_state.bookings)
-            if str(b.get("passenger_phone", "")).strip() == m_phone.strip()
-        ]
-        if not found:
-            st.warning(T["no_booking_found"])
-        for b in found:
-            st.divider()
-            st.markdown(f"**#{b.get('id', '')}** — {b.get('pickup', '')} ➔ {b.get('drop', '')} (~{b.get('distance_km', '')} km)")
-            st.info(f"**{T['status_lbl']}:** {b.get('status', '')}")
-            if b.get("notice"):
-                st.warning(b["notice"])
-            st.write(f"**{T['driver_lbl']}:** {b.get('driver_name', '')} ({b.get('vehicle_no', '')}) | **{T['contact_lbl']}:** {b.get('driver_phone', '')}")
+    if st.button(T["login_next_btn"]):
+        if not p_phone.strip() or not p_email.strip():
+            st.error(T["login_err"])
+        else:
+            st.session_state.passenger_user["phone"] = p_phone.strip()
+            st.session_state.passenger_user["email"] = p_email.strip()
+            st.session_state.screen = "create_profile"
+            st.rerun()
 
 # =====================================================================
-# 6. PROFILE
+# AFTER LOGIN: TOP BAR + SCREENS
 # =====================================================================
-elif st.session_state.screen == "profile":
-    if st.button(T["main_menu_btn"]):
-        st.session_state.screen = "home"
-        st.rerun()
+else:
+    top_left, top_right = st.columns([4, 1])
+    with top_left:
+        st.markdown(
+            f"""
+            <div class="top-brand-card">
+                <h2>{T["brand_title"]}</h2>
+                <p>{T["brand_sub"]}</p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+    with top_right:
+        if st.button(T["settings_btn"]):
+            st.session_state.screen = "settings"
+            st.rerun()
 
-    st.subheader(T["profile_title"])
-    uploaded_photo = st.file_uploader(T["upload_photo"], type=["png", "jpg", "jpeg"], key="prof_page_up")
-    if uploaded_photo is not None:
-        st.session_state.passenger_user["photo_b64"] = base64.b64encode(uploaded_photo.getvalue()).decode("utf-8")
+    if st.session_state.settings["low_network_mode"]:
+        st.info(T["low_net_msg"])
 
-    if st.session_state.passenger_user["photo_b64"]:
-        st.image(base64.b64decode(st.session_state.passenger_user["photo_b64"]), width=140)
-    else:
-        st.caption(T["no_photo_cap"])
+    # --- CREATE PROFILE ---
+    if st.session_state.screen == "create_profile":
+        st.subheader(T["create_profile_title"])
 
-    st.write(f"**{T['name_lbl']}:** {st.session_state.passenger_user['name'] or '—'}")
-    st.write(f"**{T['phone_lbl']}:** {st.session_state.passenger_user['phone'] or '—'}")
-    st.write(f"**{T['rating_lbl']}:** 4.8 ★ *({T['rating_note']})*")
+        st.markdown(f"### {T['choose_lang_label']}")
+        p_lang_choice = st.radio(
+            "prof_lang_selector",
+            ["हिंदी (देवनागरी)", "English"],
+            index=0 if st.session_state.lang == "hi" else 1,
+            horizontal=True,
+            label_visibility="collapsed",
+        )
+        new_p_lang = "hi" if p_lang_choice == "हिंदी (देवनागरी)" else "en"
+        if new_p_lang != st.session_state.lang:
+            st.session_state.lang = new_p_lang
+            st.rerun()
 
-# =====================================================================
-# 7. DRIVER PANEL
-# =====================================================================
-elif st.session_state.screen == "driver_panel":
-    if st.button(T["main_menu_btn"]):
-        st.session_state.screen = "home"
-        st.rerun()
+        st.markdown(f"### {T['enter_name']}")
+        prof_name = st.text_input(
+            "prof_name",
+            value=st.session_state.passenger_user["name"],
+            placeholder="",
+            label_visibility="collapsed",
+        )
 
-    st.subheader(T["driver_panel_title"])
+        prof_photo = st.file_uploader(T["upload_photo"], type=["png", "jpg", "jpeg"], key="init_prof_photo")
+        if prof_photo is not None:
+            st.session_state.passenger_user["photo_b64"] = base64.b64encode(prof_photo.getvalue()).decode("utf-8")
 
-    if st.session_state.logged_in_driver is None:
-        st.markdown(f"### {T['enter_phone']}")
-        l_phone = st.text_input("drv_l_phone", placeholder="", label_visibility="collapsed")
-        st.markdown(f"### {T['enter_pin']}")
-        l_pin = st.text_input("drv_l_pin", type="password", placeholder="", label_visibility="collapsed")
+        if st.session_state.passenger_user["photo_b64"]:
+            st.image(base64.b64decode(st.session_state.passenger_user["photo_b64"]), width=120)
 
-        if st.button(T["driver_login_btn"]):
-            drv = get_driver_by_phone(l_phone)
-            if not drv or str(drv.get("pin", "")).strip() != l_pin.strip():
-                st.error(T["invalid_pin_err"])
-            elif not is_driver_subscription_valid(drv):
-                st.error(T["expired_err"])
+        if st.button(T["save_profile_btn"]):
+            if not prof_name.strip():
+                st.error(T["name_err"])
             else:
-                st.session_state.logged_in_driver = str(drv["phone"]).strip()
+                st.session_state.passenger_user["name"] = prof_name.strip()
+                st.session_state.screen = "home"
                 st.rerun()
-    else:
-        drv = get_driver_by_phone(st.session_state.logged_in_driver)
-        if not drv or not is_driver_subscription_valid(drv):
-            st.error(T["expired_err"])
+
+    # --- HOME MENU ---
+    elif st.session_state.screen == "home":
+        st.subheader(f"{T['welcome']}, {st.session_state.passenger_user['name'] or 'User'}")
+
+        if st.button(T["book_trip_btn"]):
+            st.session_state.trip_substep = 1
+            st.session_state.screen = "book_trip"
+            st.rerun()
+
+        if st.button(T["my_bookings_btn"]):
+            st.session_state.screen = "my_bookings"
+            st.rerun()
+
+        if st.button(T["profile_btn"]):
+            st.session_state.screen = "profile"
+            st.rerun()
+
+        if st.button(T["driver_panel_btn"]):
+            st.session_state.screen = "driver_panel"
+            st.rerun()
+
+        if st.button(T["logout_btn"]):
+            st.session_state.screen = "login"
+            st.rerun()
+
+    # --- BOOK YOUR TRIP ---
+    elif st.session_state.screen == "book_trip":
+        if st.button(T["main_menu_btn"]):
+            st.session_state.screen = "home"
+            st.rerun()
+
+        sub = st.session_state.trip_substep
+        draft = st.session_state.draft_booking
+        st.subheader(f"{T['book_trip_title']} — {T['step_lbl']} {min(sub, 4)} / 4")
+
+        if sub == 1:
+            st.markdown(f"### {T['trip_type_q']}")
+            trip_opts = [T["trip_opt_1"], T["trip_opt_2"]]
+            chosen_trip = st.radio(
+                "trip_type",
+                trip_opts,
+                index=draft["trip_type_idx"],
+                label_visibility="collapsed",
+            )
+            draft["trip_type_idx"] = trip_opts.index(chosen_trip)
+
+            st.markdown(f"### {T['veh_cat_q']}")
+            draft["vehicle_type"] = st.radio(
+                "veh_cat",
+                ["4-Wheeler", "2-Wheeler"],
+                index=0 if draft["vehicle_type"] == "4-Wheeler" else 1,
+                horizontal=True,
+                label_visibility="collapsed",
+            )
+
+            if draft["trip_type_idx"] == 0:
+                st.markdown(f"### {T['spots_title']}")
+                st.write(" • ".join(HIGHLIGHT_SPOTS))
+
+            if st.button(T["next_from_to"]):
+                st.session_state.trip_substep = 2
+                st.rerun()
+
+        elif sub == 2:
+            loc_list = list(LOCATIONS.keys())
+            st.markdown(f"### {T['from_q']}")
+            p_idx = loc_list.index(draft["pickup"]) if draft["pickup"] in loc_list else 0
+            draft["pickup"] = st.selectbox("from_loc", loc_list, index=p_idx, label_visibility="collapsed")
+
+            st.markdown(f"### {T['to_q']}")
+            d_idx = loc_list.index(draft["drop"]) if draft["drop"] in loc_list else 3
+            draft["drop"] = st.selectbox("to_loc", loc_list, index=d_idx, label_visibility="collapsed")
+
+            km = estimate_road_km(draft["pickup"], draft["drop"])
+            draft["distance_km"] = km
+            st.success(f"📏 {T['dist_est']} **{km} km**")
+            st.caption(T["dist_note"])
+
+            c1, c2 = st.columns(2)
+            with c1:
+                if st.button(T["back_btn"]):
+                    st.session_state.trip_substep = 1
+                    st.rerun()
+            with c2:
+                if st.button(T["next_veh"]):
+                    st.session_state.trip_substep = 3
+                    st.rerun()
+
+        elif sub == 3:
+            st.markdown(f"### {T['choose_veh_q']}")
+            available_drivers = [
+                d
+                for d in st.session_state.drivers
+                if str(d.get("status", "")).strip() == "Available"
+                and str(d.get("category", "")).strip() == draft["vehicle_type"]
+                and is_driver_subscription_valid(d)
+            ]
+
+            if not available_drivers:
+                st.warning(T["no_veh_warn"])
+                if st.button(T["back_btn"]):
+                    st.session_state.trip_substep = 2
+                    st.rerun()
+            else:
+                options = {
+                    f"{d['vehicle_name']} ({d['vehicle_no']}) — {d['name']} ({d.get('rating', '4.8 ★')})": d["vehicle_no"]
+                    for d in available_drivers
+                }
+                selected_label = st.selectbox("avail_vehs", list(options.keys()), label_visibility="collapsed")
+                draft["driver_vehicle_no"] = options[selected_label]
+
+                c1, c2 = st.columns(2)
+                with c1:
+                    if st.button(T["back_btn"]):
+                        st.session_state.trip_substep = 2
+                        st.rerun()
+                with c2:
+                    if st.button(T["next_confirm"]):
+                        st.session_state.trip_substep = 4
+                        st.rerun()
+
+        elif sub == 4:
+            trip_label = T["trip_opt_1"] if draft["trip_type_idx"] == 0 else T["trip_opt_2"]
+            st.markdown(f"### {T['confirm_title']}")
+            st.write(f"**{T['passenger_lbl']}:** {st.session_state.passenger_user['name']} ({st.session_state.passenger_user['phone']})")
+            st.write(f"**{T['trip_lbl']}:** {trip_label}")
+            st.write(f"**{T['route_lbl']}:** {draft['pickup']} ➔ {draft['drop']} (**~{draft['distance_km']} km**)")
+            st.write(f"**{T['veh_no_lbl']}:** {draft['driver_vehicle_no']}")
+
+            c1, c2 = st.columns(2)
+            with c1:
+                if st.button(T["back_btn"]):
+                    st.session_state.trip_substep = 3
+                    st.rerun()
+            with c2:
+                if st.button(T["confirm_booking_btn"]):
+                    target = get_driver_by_vehicle(draft["driver_vehicle_no"])
+                    if not target or str(target.get("status", "")).strip() != "Available":
+                        st.error(T["veh_unavail_err"])
+                    else:
+                        new_booking = {
+                            "id": len(st.session_state.bookings) + 1,
+                            "passenger_name": st.session_state.passenger_user["name"],
+                            "passenger_phone": st.session_state.passenger_user["phone"],
+                            "passenger_email": st.session_state.passenger_user["email"],
+                            "trip_type": trip_label,
+                            "pickup": draft["pickup"],
+                            "drop": draft["drop"],
+                            "distance_km": draft["distance_km"],
+                            "driver_phone": str(target["phone"]),
+                            "driver_name": str(target["name"]),
+                            "vehicle_no": str(target["vehicle_no"]),
+                            "status": "Waiting for Driver Confirmation",
+                            "notice": "",
+                        }
+                        st.session_state.bookings.append(new_booking)
+                        persist_state()
+                        st.session_state.trip_substep = 5
+                        st.rerun()
+
+        elif sub == 5 and st.session_state.bookings:
+            latest = st.session_state.bookings[-1]
+            st.success(T["booking_sent"])
+            st.info(T["waiting_driver"])
+            st.write(f"**{T['route_lbl']}:** {latest['pickup']} ➔ {latest['drop']} (~{latest['distance_km']} km)")
+            st.write(f"**{T['driver_lbl']}:** {latest['driver_name']} ({latest['vehicle_no']}) | **{T['contact_lbl']}:** {latest['driver_phone']}")
+            if st.button(T["new_booking_btn"]):
+                st.session_state.trip_substep = 1
+                st.rerun()
+
+    # --- MY BOOKINGS ---
+    elif st.session_state.screen == "my_bookings":
+        if st.button(T["main_menu_btn"]):
+            st.session_state.screen = "home"
+            st.rerun()
+
+        st.subheader(T["my_bookings_title"])
+        st.markdown(f"### {T['enter_phone']}")
+        m_phone = st.text_input(
+            "my_booking_phone",
+            value=st.session_state.passenger_user["phone"],
+            placeholder="",
+            label_visibility="collapsed",
+        )
+        st.session_state.passenger_user["phone"] = m_phone.strip()
+
+        if st.button(T["refresh_status_btn"]):
+            st.session_state.sheet_loaded = False
+            load_from_sheet()
+            st.rerun()
+
+        if m_phone.strip():
+            found = [
+                b
+                for b in reversed(st.session_state.bookings)
+                if str(b.get("passenger_phone", "")).strip() == m_phone.strip()
+            ]
+            if not found:
+                st.warning(T["no_booking_found"])
+            for b in found:
+                st.divider()
+                st.markdown(f"**#{b.get('id', '')}** — {b.get('pickup', '')} ➔ {b.get('drop', '')} (~{b.get('distance_km', '')} km)")
+                st.info(f"**{T['status_lbl']}:** {b.get('status', '')}")
+                if b.get("notice"):
+                    st.warning(b["notice"])
+                st.write(f"**{T['driver_lbl']}:** {b.get('driver_name', '')} ({b.get('vehicle_no', '')}) | **{T['contact_lbl']}:** {b.get('driver_phone', '')}")
+
+    # --- PROFILE ---
+    elif st.session_state.screen == "profile":
+        if st.button(T["main_menu_btn"]):
+            st.session_state.screen = "home"
+            st.rerun()
+
+        st.subheader(T["profile_title"])
+        uploaded_photo = st.file_uploader(T["upload_photo"], type=["png", "jpg", "jpeg"], key="prof_page_up")
+        if uploaded_photo is not None:
+            st.session_state.passenger_user["photo_b64"] = base64.b64encode(uploaded_photo.getvalue()).decode("utf-8")
+
+        if st.session_state.passenger_user["photo_b64"]:
+            st.image(base64.b64decode(st.session_state.passenger_user["photo_b64"]), width=140)
+        else:
+            st.caption(T["no_photo_cap"])
+
+        st.write(f"**{T['name_lbl']}:** {st.session_state.passenger_user['name'] or '—'}")
+        st.write(f"**{T['phone_lbl']}:** {st.session_state.passenger_user['phone'] or '—'}")
+        st.write(f"**{T['email_lbl']}:** {st.session_state.passenger_user['email'] or '—'}")
+        st.write(f"**{T['rating_lbl']}:** 4.8 ★ *({T['rating_note']})*")
+
+    # --- DRIVER PANEL ---
+    elif st.session_state.screen == "driver_panel":
+        if st.button(T["main_menu_btn"]):
+            st.session_state.screen = "home"
+            st.rerun()
+
+        st.subheader(T["driver_panel_title"])
+
+        if st.session_state.logged_in_driver is None:
+            st.markdown(f"### {T['enter_phone']}")
+            l_phone = st.text_input("drv_l_phone", placeholder="", label_visibility="collapsed")
+            st.markdown(f"### {T['enter_pin']}")
+            l_pin = st.text_input("drv_l_pin", type="password", placeholder="", label_visibility="collapsed")
+
+            if st.button(T["driver_login_btn"]):
+                drv = get_driver_by_phone(l_phone)
+                if not drv or str(drv.get("pin", "")).strip() != l_pin.strip():
+                    st.error(T["invalid_pin_err"])
+                elif not is_driver_subscription_valid(drv):
+                    st.error(T["expired_err"])
+                else:
+                    st.session_state.logged_in_driver = str(drv["phone"]).strip()
+                    st.rerun()
+        else:
+            drv = get_driver_by_phone(st.session_state.logged_in_driver)
+            if not drv or not is_driver_subscription_valid(drv):
+                st.error(T["expired_err"])
+                if st.button(T["logout_btn"]):
+                    st.session_state.logged_in_driver = None
+                    st.rerun()
+                st.stop()
+
+            d_photo = st.file_uploader(T["upload_photo"], type=["png", "jpg", "jpeg"], key="drv_photo_up")
+            if d_photo is not None:
+                drv["photo_b64"] = base64.b64encode(d_photo.getvalue()).decode("utf-8")
+                persist_state()
+
+            if drv.get("photo_b64"):
+                st.image(base64.b64decode(drv["photo_b64"]), width=140)
+
+            st.markdown(f"### {drv['name']} ({drv['vehicle_no']})")
+            st.write(f"**{drv['vehicle_name']}** | **{T['rating_lbl']}:** {drv.get('rating', '4.8 ★')} | **{T['status_lbl']}:** `{drv['status']}`")
+
+            cur_status = str(drv.get("status", "Available")).strip()
+            status_list = ["Available", "On Ride", "Off Duty"]
+            s_idx = status_list.index(cur_status) if cur_status in status_list else 0
+            new_status = st.selectbox(T["duty_status_lbl"], status_list, index=s_idx)
+            if new_status != cur_status:
+                drv["status"] = new_status
+                persist_state()
+                st.rerun()
+
+            if st.session_state.settings["voice_alert"]:
+                if st.button(T["voice_test_btn"]):
+                    play_voice_alert("देवभूमि राइड पर आवाज़ अलर्ट चालू है")
+
+            st.divider()
+            my_bookings = [
+                b
+                for b in st.session_state.bookings
+                if str(b.get("driver_phone", "")).strip() == str(drv["phone"]).strip()
+                and str(b.get("status", "")).strip() != "Trip Completed"
+            ]
+
+            if my_bookings and st.session_state.settings["voice_alert"]:
+                play_voice_alert("देवभूमि राइड पर नई बुकिंग आई है")
+
+            if not my_bookings:
+                st.caption(T["no_active_booking"])
+
+            for b in my_bookings:
+                st.markdown(f"**#{b['id']}** — {b['pickup']} ➔ {b['drop']} (~{b['distance_km']} km)")
+                st.write(f"{T['passenger_lbl']}: {b['passenger_name']} | {T['contact_lbl']}: {b['passenger_phone']} | `{b['status']}`")
+
+                if b["status"] == "Waiting for Driver Confirmation":
+                    if st.button(T["accept_btn"], key=f"conf_{b['id']}"):
+                        b["status"] = "Driver Confirmed"
+                        persist_state()
+                        st.rerun()
+
+                if b["status"] in ["Waiting for Driver Confirmation", "Driver Confirmed"]:
+                    if st.button(T["picked_btn"], key=f"pick_{b['id']}"):
+                        b["status"] = "Passenger Picked (On Ride)"
+                        drv["status"] = "On Ride"
+                        persist_state()
+                        st.rerun()
+
+                if b["status"] == "Passenger Picked (On Ride)":
+                    if st.button(T["complete_btn"], key=f"done_{b['id']}"):
+                        b["status"] = "Trip Completed"
+                        drv["status"] = "Available"
+                        persist_state()
+                        st.rerun()
+
+                st.markdown(f"**{T['forward_title']}**")
+                partner_veh = st.text_input("partner_veh", placeholder="", key=f"fwd_veh_{b['id']}", label_visibility="collapsed")
+                if st.button(T["forward_btn"], key=f"fwd_btn_{b['id']}"):
+                    partner = get_driver_by_vehicle(partner_veh)
+                    if not partner:
+                        st.error("Vehicle not found / गाड़ी नंबर नहीं मिला।")
+                    elif str(partner["phone"]).strip() == str(drv["phone"]).strip():
+                        st.error("Enter another partner driver's vehicle number.")
+                    elif str(partner.get("status", "")).strip() != "Available" or not is_driver_subscription_valid(partner):
+                        st.error("Partner driver is not Available.")
+                    else:
+                        old_drv_name = drv["name"]
+                        b["driver_phone"] = str(partner["phone"])
+                        b["driver_name"] = str(partner["name"])
+                        b["vehicle_no"] = str(partner["vehicle_no"])
+                        b["status"] = "Waiting for Driver Confirmation"
+                        b["notice"] = (
+                            f"Booking transferred by {old_drv_name}. "
+                            f"New driver: {partner['name']} ({partner['vehicle_no']}). Contact: {partner['phone']}"
+                        )
+                        drv["status"] = "Available"
+                        persist_state()
+                        st.success(f"Forwarded to {partner['name']} ({partner['vehicle_no']}).")
+                        st.rerun()
+
+                st.divider()
+
             if st.button(T["logout_btn"]):
                 st.session_state.logged_in_driver = None
                 st.rerun()
-            st.stop()
 
-        d_photo = st.file_uploader(T["upload_photo"], type=["png", "jpg", "jpeg"], key="drv_photo_up")
-        if d_photo is not None:
-            drv["photo_b64"] = base64.b64encode(d_photo.getvalue()).decode("utf-8")
-            persist_state()
-
-        if drv.get("photo_b64"):
-            st.image(base64.b64decode(drv["photo_b64"]), width=140)
-
-        st.markdown(f"### {drv['name']} ({drv['vehicle_no']})")
-        st.write(f"**{drv['vehicle_name']}** | **{T['rating_lbl']}:** {drv.get('rating', '4.8 ★')} | **{T['status_lbl']}:** `{drv['status']}`")
-
-        cur_status = str(drv.get("status", "Available")).strip()
-        status_list = ["Available", "On Ride", "Off Duty"]
-        s_idx = status_list.index(cur_status) if cur_status in status_list else 0
-        new_status = st.selectbox(T["duty_status_lbl"], status_list, index=s_idx)
-        if new_status != cur_status:
-            drv["status"] = new_status
-            persist_state()
+    # --- SETTINGS ---
+    elif st.session_state.screen == "settings":
+        if st.button(T["back_btn"]):
+            st.session_state.screen = "home" if st.session_state.passenger_user["name"] else "create_profile"
             st.rerun()
 
-        if st.session_state.settings["voice_alert"]:
-            if st.button(T["voice_test_btn"]):
-                play_voice_alert("देवभूमि राइड पर आवाज़ अलर्ट चालू है")
+        st.subheader(T["settings_title"])
+        st.markdown(f"### {T['choose_lang_label']}")
+        s_lang_choice = st.radio(
+            "settings_lang",
+            ["हिंदी (देवनागरी)", "English"],
+            index=0 if st.session_state.lang == "hi" else 1,
+            horizontal=True,
+            label_visibility="collapsed",
+        )
+        new_s_lang = "hi" if s_lang_choice == "हिंदी (देवनागरी)" else "en"
+        if new_s_lang != st.session_state.lang:
+            st.session_state.lang = new_s_lang
+            st.rerun()
 
         st.divider()
-        my_bookings = [
-            b
-            for b in st.session_state.bookings
-            if str(b.get("driver_phone", "")).strip() == str(drv["phone"]).strip()
-            and str(b.get("status", "")).strip() != "Trip Completed"
-        ]
+        st.session_state.settings["voice_alert"] = st.toggle(
+            T["voice_toggle"],
+            value=st.session_state.settings["voice_alert"],
+        )
+        st.session_state.settings["low_network_mode"] = st.toggle(
+            T["low_net_toggle"],
+            value=st.session_state.settings["low_network_mode"],
+        )
 
-        if my_bookings and st.session_state.settings["voice_alert"]:
-            play_voice_alert("देवभूमि राइड पर नई बुकिंग आई है")
-
-        if not my_bookings:
-            st.caption(T["no_active_booking"])
-
-        for b in my_bookings:
-            st.markdown(f"**#{b['id']}** — {b['pickup']} ➔ {b['drop']} (~{b['distance_km']} km)")
-            st.write(f"{T['passenger_lbl']}: {b['passenger_name']} | {T['contact_lbl']}: {b['passenger_phone']} | `{b['status']}`")
-
-            if b["status"] == "Waiting for Driver Confirmation":
-                if st.button(T["accept_btn"], key=f"conf_{b['id']}"):
-                    b["status"] = "Driver Confirmed"
-                    persist_state()
-                    st.rerun()
-
-            if b["status"] in ["Waiting for Driver Confirmation", "Driver Confirmed"]:
-                if st.button(T["picked_btn"], key=f"pick_{b['id']}"):
-                    b["status"] = "Passenger Picked (On Ride)"
-                    drv["status"] = "On Ride"
-                    persist_state()
-                    st.rerun()
-
-            if b["status"] == "Passenger Picked (On Ride)":
-                if st.button(T["complete_btn"], key=f"done_{b['id']}"):
-                    b["status"] = "Trip Completed"
-                    drv["status"] = "Available"
-                    persist_state()
-                    st.rerun()
-
-            st.markdown(f"**{T['forward_title']}**")
-            partner_veh = st.text_input("partner_veh", placeholder="", key=f"fwd_veh_{b['id']}", label_visibility="collapsed")
-            if st.button(T["forward_btn"], key=f"fwd_btn_{b['id']}"):
-                partner = get_driver_by_vehicle(partner_veh)
-                if not partner:
-                    st.error("Vehicle not found / गाड़ी नंबर नहीं मिला।")
-                elif str(partner["phone"]).strip() == str(drv["phone"]).strip():
-                    st.error("Enter another partner driver's vehicle number.")
-                elif str(partner.get("status", "")).strip() != "Available" or not is_driver_subscription_valid(partner):
-                    st.error("Partner driver is not Available.")
-                else:
-                    old_drv_name = drv["name"]
-                    b["driver_phone"] = str(partner["phone"])
-                    b["driver_name"] = str(partner["name"])
-                    b["vehicle_no"] = str(partner["vehicle_no"])
-                    b["status"] = "Waiting for Driver Confirmation"
-                    b["notice"] = (
-                        f"Booking transferred by {old_drv_name}. "
-                        f"New driver: {partner['name']} ({partner['vehicle_no']}). Contact: {partner['phone']}"
-                    )
-                    drv["status"] = "Available"
-                    persist_state()
-                    st.success(f"Forwarded to {partner['name']} ({partner['vehicle_no']}).")
-                    st.rerun()
-
-            st.divider()
-
-        if st.button(T["logout_btn"]):
-            st.session_state.logged_in_driver = None
+    # --- FOOTER (सिर्फ login के बाद वाली screens पर) ---
+    st.divider()
+    f1, f2 = st.columns(2)
+    with f1:
+        if st.button(T["terms_btn"]):
+            st.session_state.show_legal_modal = "terms" if st.session_state.show_legal_modal != "terms" else None
+            st.rerun()
+    with f2:
+        if st.button(T["support_btn"]):
+            st.session_state.show_legal_modal = "support" if st.session_state.show_legal_modal != "support" else None
             st.rerun()
 
-# =====================================================================
-# 8. SETTINGS
-# =====================================================================
-elif st.session_state.screen == "settings":
-    if st.button(T["back_btn"]):
-        st.session_state.screen = "home" if st.session_state.passenger_user["name"] else "login"
-        st.rerun()
-
-    st.subheader(T["settings_title"])
-    st.markdown(f"### {T['choose_lang_label']}")
-    s_lang_choice = st.radio(
-        "settings_lang",
-        ["हिंदी (देवनागरी)", "English"],
-        index=0 if st.session_state.lang == "hi" else 1,
-        horizontal=True,
-        label_visibility="collapsed",
-    )
-    new_s_lang = "hi" if s_lang_choice == "हिंदी (देवनागरी)" else "en"
-    if new_s_lang != st.session_state.lang:
-        st.session_state.lang = new_s_lang
-        st.rerun()
-
-    st.divider()
-    st.session_state.settings["voice_alert"] = st.toggle(
-        T["voice_toggle"],
-        value=st.session_state.settings["voice_alert"],
-    )
-    st.session_state.settings["low_network_mode"] = st.toggle(
-        T["low_net_toggle"],
-        value=st.session_state.settings["low_network_mode"],
-    )
-
-# =====================================================================
-# FOOTER: Terms & Conditions + Customer Support
-# =====================================================================
-st.divider()
-f1, f2 = st.columns(2)
-with f1:
-    if st.button(T["terms_btn"]):
-        st.session_state.show_legal_modal = "terms" if st.session_state.show_legal_modal != "terms" else None
-        st.rerun()
-with f2:
-    if st.button(T["support_btn"]):
-        st.session_state.show_legal_modal = "support" if st.session_state.show_legal_modal != "support" else None
-        st.rerun()
-
-if st.session_state.show_legal_modal == "terms":
-    st.info(T["terms_text"])
-elif st.session_state.show_legal_modal == "support":
-    st.info(f"{T['support_text']} **{st.session_state.settings['support_phone']}**")
+    if st.session_state.show_legal_modal == "terms":
+        st.info(T["terms_text"])
+    elif st.session_state.show_legal_modal == "support":
+        st.info(f"{T['support_text']} **{st.session_state.settings['support_phone']}**")
