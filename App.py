@@ -185,6 +185,8 @@ if "settings" not in st.session_state:
     }
 if "logged_in_driver" not in st.session_state:
     st.session_state.logged_in_driver = None
+if "my_booking_phone" not in st.session_state:
+    st.session_state.my_booking_phone = ""
 
 load_from_sheet()
 
@@ -270,13 +272,16 @@ st.caption("उत्तराखंड के लोकल गांव, बा
 
 mode = st.radio(
     "सेक्शन चुनें",
-    ["यात्री बुकिंग", "ड्राइवर पैनल", "सेटिंग्स"],
+    ["यात्री बुकिंग", "मेरी बुकिंग", "ड्राइवर पैनल", "सेटिंग्स"],
     horizontal=True,
     label_visibility="collapsed",
 )
 
 st.divider()
 
+# =====================================================================
+# 1. यात्री बुकिंग
+# =====================================================================
 if mode == "यात्री बुकिंग":
     step = st.session_state.booking_step
     draft = st.session_state.draft_booking
@@ -413,6 +418,7 @@ if mode == "यात्री बुकिंग":
                             "notice": "",
                         }
                         st.session_state.bookings.append(new_booking)
+                        st.session_state.my_booking_phone = draft["passenger_phone"].strip()
                         persist_state()
                         st.session_state.booking_step = 5
                         st.rerun()
@@ -426,6 +432,7 @@ if mode == "यात्री बुकिंग":
         st.write(f"**रूट:** {latest['pickup']} ➔ {latest['drop']} (~{latest['distance_km']} km)")
         st.write(f"**वर्तमान ड्राइवर:** {latest['driver_name']} ({latest['vehicle_no']})")
         st.write(f"**ड्राइवर संपर्क नंबर:** {latest['driver_phone']}")
+        st.caption("नोट: ऐप बंद करने के बाद भी आप ऊपर 'मेरी बुकिंग' टैब में अपना मोबाइल नंबर डालकर स्थिति देख सकते हैं।")
 
         if st.button("🔄 स्थिति देखें"):
             st.session_state.sheet_loaded = False
@@ -436,6 +443,46 @@ if mode == "यात्री बुकिंग":
             st.session_state.draft_booking["driver_vehicle_no"] = ""
             st.rerun()
 
+# =====================================================================
+# 2. मेरी बुकिंग (My Bookings - ऐप बंद करने के बाद भी देखने के लिए)
+# =====================================================================
+elif mode == "मेरी बुकिंग":
+    st.subheader("📋 मेरी बुकिंग")
+    st.markdown("### बुकिंग वाला मोबाइल नंबर दर्ज करें")
+    search_phone = st.text_input(
+        "मेरा नंबर",
+        value=st.session_state.my_booking_phone,
+        placeholder="",
+        label_visibility="collapsed",
+    )
+    st.session_state.my_booking_phone = search_phone.strip()
+
+    if st.button("🔍 बुकिंग खोजें / स्थिति रिफ्रेश करें"):
+        st.session_state.sheet_loaded = False
+        load_from_sheet()
+        st.rerun()
+
+    if st.session_state.my_booking_phone:
+        user_bookings = [
+            b
+            for b in reversed(st.session_state.bookings)
+            if str(b.get("passenger_phone", "")).strip() == st.session_state.my_booking_phone
+        ]
+        if not user_bookings:
+            st.warning("इस मोबाइल नंबर पर कोई बुकिंग नहीं मिली।")
+        else:
+            for b in user_bookings:
+                st.divider()
+                st.markdown(f"**बुकिंग #{b.get('id', '')}** — {b.get('pickup', '')} ➔ {b.get('drop', '')} (~{b.get('distance_km', '')} km)")
+                st.info(f"**स्थिति:** {b.get('status', '')}")
+                if b.get("notice"):
+                    st.warning(b["notice"])
+                st.write(f"**ड्राइवर:** {b.get('driver_name', '')} ({b.get('vehicle_no', '')})")
+                st.write(f"**ड्राइवर संपर्क नंबर:** {b.get('driver_phone', '')}")
+
+# =====================================================================
+# 3. ड्राइवर पैनल
+# =====================================================================
 elif mode == "ड्राइवर पैनल":
     if st.session_state.logged_in_driver is None:
         st.subheader("ड्राइवर लॉगिन")
@@ -556,6 +603,9 @@ elif mode == "ड्राइवर पैनल":
             st.session_state.logged_in_driver = None
             st.rerun()
 
+# =====================================================================
+# 4. सेटिंग्स
+# =====================================================================
 elif mode == "सेटिंग्स":
     st.subheader("⚙️ सेटिंग्स")
 
