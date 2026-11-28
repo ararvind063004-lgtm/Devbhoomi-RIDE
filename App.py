@@ -14,7 +14,6 @@ st.set_page_config(
 
 DB_URL = "https://script.google.com/macros/s/AKfycby3A2XJ0_hrgcs0IRy-pnJzQWmXmwrndsQXZEN73EjNoKKlSIW83dxnjqGp4L6yZ15heQ/exec"
 
-# --- Teal / Slate Theme + बड़े साफ बॉक्स (बिना demo/placeholder के) ---
 st.markdown(
     """
     <style>
@@ -24,35 +23,35 @@ st.markdown(
     .top-brand-card {
         background: linear-gradient(135deg, #0f766e 0%, #115e59 100%);
         color: #ffffff;
-        padding: 18px 20px;
-        border-radius: 16px;
-        margin-bottom: 14px;
-        box-shadow: 0 4px 14px rgba(15, 118, 110, 0.22);
+        padding: 16px 18px;
+        border-radius: 14px;
+        margin-bottom: 12px;
+        box-shadow: 0 4px 12px rgba(15, 118, 110, 0.2);
     }
     .top-brand-card h2 {
         color: #ffffff !important;
-        margin: 0 0 4px 0 !important;
-        font-size: 24px !important;
+        margin: 0 0 3px 0 !important;
+        font-size: 22px !important;
     }
     .top-brand-card p {
         color: #ccfbf1 !important;
         margin: 0 !important;
-        font-size: 14px !important;
+        font-size: 13px !important;
     }
     div[data-baseweb="input"] > div,
     div[data-baseweb="select"] > div {
-        min-height: 56px !important;
-        font-size: 18px !important;
+        min-height: 54px !important;
+        font-size: 17px !important;
         border-radius: 12px !important;
         background-color: #ffffff !important;
     }
     input {
-        font-size: 18px !important;
+        font-size: 17px !important;
         padding: 12px !important;
     }
     div.stButton > button {
-        min-height: 54px !important;
-        font-size: 17px !important;
+        min-height: 50px !important;
+        font-size: 16px !important;
         font-weight: 700 !important;
         border-radius: 12px !important;
         width: 100% !important;
@@ -72,44 +71,39 @@ st.markdown(
 TEXT = {
     "hi": {
         "brand_title": "🚗 देवभूमि राइड",
-        "brand_sub": "उत्तराखंड के लोकल गांव, बाज़ार और चारधाम व पर्यटन रूट्स के लिए",
-        "settings_btn": "⚙️ सेटिंग्स",
-        "low_net_msg": "📶 नेटवर्क कनेक्शन धीमा हो सकता है — कृपया प्रतीक्षा करें।",
+        "brand_sub": "उत्तराखंड लोकल गांव, बाज़ार व चारधाम यात्रा",
+        "settings_btn": "⚙️",
+        "low_net_msg": "📶 नेटवर्क धीमा हो सकता है — कृपया प्रतीक्षा करें।",
         "choose_lang_label": "भाषा चुनें / Select Language",
         "enter_phone": "मोबाइल नंबर दर्ज करें",
         "enter_email": "ईमेल दर्ज करें",
-        "login_next_btn": "➡️ लॉगिन करें / आगे बढ़ें",
+        "login_next_btn": "➡️ आगे बढ़ें",
         "login_err": "कृपया मोबाइल नंबर और ईमेल दर्ज करें।",
-        "create_profile_title": "प्रोफ़ाइल बनाएं (Create Profile)",
-        "enter_name": "आपका पूरा नाम दर्ज करें",
-        "upload_photo": "प्रोफ़ाइल फ़ोटो जोड़ें / बदलें (वैकल्पिक)",
-        "save_profile_btn": "✅ प्रोफ़ाइल सेव करें और आगे बढ़ें",
+        "create_profile_title": "प्रोफ़ाइल बनाएं",
+        "enter_name": "पूरा नाम दर्ज करें",
+        "upload_photo": "प्रोफ़ाइल फ़ोटो जोड़ें",
+        "save_profile_btn": "✅ सेव करें व बुकिंग शुरू करें",
         "name_err": "कृपया अपना नाम दर्ज करें।",
-        "welcome": "नमस्ते",
-        "book_trip_btn": "🗺️ अपनी यात्रा बुक करें (Book Your Trip)",
-        "my_bookings_btn": "📋 मेरी बुकिंग (My Bookings)",
-        "profile_btn": "👤 मेरी प्रोफ़ाइल व फ़ोटो (Profile)",
-        "driver_panel_btn": "🚕 ड्राइवर पैनल (Driver Panel)",
-        "logout_btn": "🚪 लॉगआउट",
-        "main_menu_btn": "🏠 मुख्य मेनू पर जाएं",
-        "book_trip_title": "यात्रा बुक करें",
-        "step_lbl": "चरण",
-        "trip_type_q": "यात्रा का प्रकार चुनें",
+        "nav_book": "बुकिंग",
+        "nav_my_bookings": "मेरी बुकिंग",
+        "nav_profile": "प्रोफ़ाइल",
+        "nav_driver": "ड्राइवर",
+        "trip_type_q": "यात्रा का प्रकार",
         "trip_opt_1": "चारधाम व उत्तराखंड टूरिस्ट / मंदिर रूट",
         "trip_opt_2": "लोकल गांव व बाज़ार राइड",
-        "veh_cat_q": "गाड़ी की श्रेणी चुनें",
-        "spots_title": "उत्तराखंड के प्रमुख धाम, मंदिर व पर्यटन स्थल",
-        "next_from_to": "आगे बढ़ें (From - To चुनें) ➡️",
+        "veh_cat_q": "गाड़ी की श्रेणी",
+        "spots_title": "प्रमुख धाम व पर्यटन स्थल",
+        "next_from_to": "आगे बढ़ें ➡️",
         "from_q": "कहाँ से जाना है (From)",
         "to_q": "कहाँ जाना है (To)",
         "dist_est": "अनुमानित दूरी: लगभग",
-        "dist_note": "नोट: पहाड़ी मोड़, रूट और मौसम के अनुसार वास्तविक दूरी में थोड़ा अंतर आ सकता है।",
+        "dist_note": "पहाड़ी मोड़, रूट व मौसम के अनुसार दूरी में थोड़ा अंतर आ सकता है।",
         "back_btn": "⬅️ पीछे",
-        "next_veh": "आगे बढ़ें (गाड़ी चुनें) ➡️",
+        "next_veh": "गाड़ी चुनें ➡️",
         "choose_veh_q": "उपलब्ध गाड़ी चुनें",
-        "no_veh_warn": "अभी इस श्रेणी में कोई गाड़ी उपलब्ध नहीं है।",
-        "next_confirm": "आगे बढ़ें (पुष्टि करें) ➡️",
-        "confirm_title": "बुकिंग पुष्टि करें",
+        "no_veh_warn": "इस श्रेणी में अभी कोई गाड़ी उपलब्ध नहीं है।",
+        "next_confirm": "पुष्टि करें ➡️",
+        "confirm_title": "बुकिंग विवरण",
         "passenger_lbl": "यात्री",
         "trip_lbl": "यात्रा प्रकार",
         "route_lbl": "रूट",
@@ -117,124 +111,119 @@ TEXT = {
         "confirm_booking_btn": "✅ बुकिंग कन्फ़र्म करें",
         "veh_unavail_err": "यह गाड़ी अभी उपलब्ध नहीं है।",
         "booking_sent": "बुकिंग अनुरोध भेज दिया गया है।",
-        "waiting_driver": "⏳ ड्राइवर की पुष्टि की प्रतीक्षा है (Waiting for driver confirmation)",
+        "waiting_driver": "⏳ ड्राइवर की पुष्टि की प्रतीक्षा है",
         "driver_lbl": "ड्राइवर",
         "contact_lbl": "संपर्क",
-        "new_booking_btn": "➕ नई बुकिंग करें",
-        "my_bookings_title": "📋 मेरी बुकिंग",
-        "refresh_status_btn": "🔄 स्थिति रिफ्रेश करें",
+        "new_booking_btn": "➕ नई बुकिंग",
+        "my_bookings_title": "मेरी बुकिंग",
+        "refresh_status_btn": "🔄 रिफ्रेश करें",
         "no_booking_found": "इस नंबर पर कोई बुकिंग नहीं मिली।",
         "status_lbl": "स्थिति",
-        "profile_title": "👤 मेरी प्रोफ़ाइल",
-        "no_photo_cap": "अभी प्रोफ़ाइल फ़ोटो नहीं लगाई गई है।",
+        "profile_title": "प्रोफ़ाइल",
+        "no_photo_cap": "फ़ोटो नहीं लगी है।",
         "name_lbl": "नाम",
-        "phone_lbl": "मोबाइल नंबर",
+        "phone_lbl": "मोबाइल",
         "email_lbl": "ईमेल",
         "rating_lbl": "रेटिंग",
-        "rating_note": "यात्रा पूर्ण होने पर रेटिंग अपडेट होगी",
-        "driver_panel_title": "🚕 ड्राइवर पैनल",
+        "logout_btn": "लॉगआउट",
+        "driver_panel_title": "ड्राइवर पैनल",
         "driver_login_btn": "लॉगिन करें",
-        "enter_pin": "4-अंकों का पिन दर्ज करें",
+        "enter_pin": "4-अंकों का पिन",
         "invalid_pin_err": "मोबाइल नंबर या पिन सही नहीं है।",
-        "expired_err": "आपकी आईडी/सदस्यता समाप्त हो गई है।",
-        "duty_status_lbl": "ड्यूटी स्थिति बदलें",
-        "voice_test_btn": "🔊 आवाज़ अलर्ट चालू / टेस्ट करें",
+        "expired_err": "आईडी/सदस्यता समाप्त हो गई है।",
+        "duty_status_lbl": "ड्यूटी स्थिति",
+        "voice_test_btn": "🔊 आवाज़ अलर्ट टेस्ट करें",
         "no_active_booking": "अभी कोई सक्रिय बुकिंग नहीं है।",
-        "accept_btn": "✅ बुकिंग कन्फ़र्म करें",
-        "picked_btn": "🚕 सवारी पिक कर ली (Passenger Picked)",
-        "complete_btn": "🏁 राइड पूरी हुई (Trip Completed)",
-        "forward_title": "साथी ड्राइवर को बुकिंग भेजें (गाड़ी नंबर दर्ज करें)",
-        "forward_btn": "🔁 साथी ड्राइवर को बुकिंग भेजें",
-        "settings_title": "⚙️ सेटिंग्स",
-        "voice_toggle": "🔔 आवाज़ / नोटिफिकेशन अलर्ट (नई बुकिंग आने पर बोलकर सूचना दें)",
-        "low_net_toggle": "📶 कमज़ोर नेटवर्क सूचना मोड",
-        "terms_btn": "📜 नियम व शर्तें (Terms)",
-        "support_btn": "📞 ग्राहक सहायता (Support)",
-        "terms_text": "नियम व शर्तें: देवभूमि राइड स्थानीय व पर्यटन यात्राओं के लिए बुकिंग समन्वय माध्यम है। दूरी पहाड़ी मार्ग के अनुसार अनुमानित होती है। ड्राइवर द्वारा सवारी पिक करते ही गाड़ी On Ride हो जाती है।",
-        "support_text": "ग्राहक सहायता: किसी भी बुकिंग या तकनीकी सहायता के लिए संपर्क करें —",
+        "accept_btn": "✅ कन्फ़र्म करें",
+        "picked_btn": "🚕 सवारी पिक कर ली",
+        "complete_btn": "🏁 राइड पूरी हुई",
+        "forward_title": "साथी ड्राइवर को बुकिंग भेजें (गाड़ी नंबर)",
+        "forward_btn": "🔁 बुकिंग भेजें",
+        "settings_title": "सेटिंग्स",
+        "voice_toggle": "आवाज़ / नोटिफिकेशन अलर्ट",
+        "low_net_toggle": "कमज़ोर नेटवर्क सूचना",
+        "terms_title": "नियम व शर्तें (Terms & Conditions)",
+        "terms_text": "देवभूमि राइड स्थानीय व पर्यटन यात्राओं के लिए बुकिंग समन्वय माध्यम है। दूरी पहाड़ी मार्ग के अनुसार अनुमानित होती है। सवारी पिक होते ही गाड़ी On Ride हो जाती है।",
+        "support_title": "ग्राहक सहायता (Customer Support)",
+        "support_text": "सहायता संपर्क नंबर:",
     },
     "en": {
         "brand_title": "🚗 DevBhoomi Ride",
-        "brand_sub": "For local Uttarakhand village, market, Char Dham & tourist routes",
-        "settings_btn": "⚙️ Settings",
+        "brand_sub": "Uttarakhand Local Village, Market & Char Dham Travel",
+        "settings_btn": "⚙️",
         "low_net_msg": "📶 Network connection may be slow — please wait.",
         "choose_lang_label": "भाषा चुनें / Select Language",
         "enter_phone": "Enter Mobile Number",
         "enter_email": "Enter Email",
-        "login_next_btn": "➡️ Login / Continue",
+        "login_next_btn": "➡️ Continue",
         "login_err": "Please enter mobile number and email.",
         "create_profile_title": "Create Profile",
-        "enter_name": "Enter Your Full Name",
-        "upload_photo": "Add / Change Profile Photo (Optional)",
-        "save_profile_btn": "✅ Save Profile & Continue",
+        "enter_name": "Enter Full Name",
+        "upload_photo": "Add Profile Photo",
+        "save_profile_btn": "✅ Save & Start Booking",
         "name_err": "Please enter your name.",
-        "welcome": "Welcome",
-        "book_trip_btn": "🗺️ Book Your Trip",
-        "my_bookings_btn": "📋 My Bookings",
-        "profile_btn": "👤 My Profile & Photo",
-        "driver_panel_btn": "🚕 Driver Panel",
-        "logout_btn": "🚪 Logout",
-        "main_menu_btn": "🏠 Go to Main Menu",
-        "book_trip_title": "Book Your Trip",
-        "step_lbl": "Step",
-        "trip_type_q": "Select Trip Type",
+        "nav_book": "Book Trip",
+        "nav_my_bookings": "My Bookings",
+        "nav_profile": "Profile",
+        "nav_driver": "Driver",
+        "trip_type_q": "Trip Type",
         "trip_opt_1": "Char Dham & Uttarakhand Tourist / Temple Route",
         "trip_opt_2": "Local Village & Market Ride",
-        "veh_cat_q": "Select Vehicle Category",
-        "spots_title": "Major Shrines, Temples & Tourist Destinations in Uttarakhand",
-        "next_from_to": "Next (Select From - To) ➡️",
-        "from_q": "Pickup Location (From)",
-        "to_q": "Destination (To)",
+        "veh_cat_q": "Vehicle Category",
+        "spots_title": "Major Shrines & Tourist Spots",
+        "next_from_to": "Next ➡️",
+        "from_q": "Pickup (From)",
+        "to_q": "Drop (To)",
         "dist_est": "Estimated Distance: approx.",
-        "dist_note": "Note: Actual road distance may vary slightly due to mountain turns and weather.",
+        "dist_note": "Actual road distance may vary slightly on mountain roads and weather.",
         "back_btn": "⬅️ Back",
-        "next_veh": "Next (Select Vehicle) ➡️",
+        "next_veh": "Select Vehicle ➡️",
         "choose_veh_q": "Select Available Vehicle",
-        "no_veh_warn": "No vehicle is currently available in this category.",
-        "next_confirm": "Next (Confirm) ➡️",
-        "confirm_title": "Confirm Booking",
+        "no_veh_warn": "No vehicle available in this category.",
+        "next_confirm": "Confirm ➡️",
+        "confirm_title": "Booking Summary",
         "passenger_lbl": "Passenger",
         "trip_lbl": "Trip Type",
         "route_lbl": "Route",
         "veh_no_lbl": "Vehicle No",
         "confirm_booking_btn": "✅ Confirm Booking",
-        "veh_unavail_err": "This vehicle is no longer available.",
-        "booking_sent": "Booking request has been sent.",
+        "veh_unavail_err": "This vehicle is not available.",
+        "booking_sent": "Booking request sent.",
         "waiting_driver": "⏳ Waiting for driver confirmation",
         "driver_lbl": "Driver",
         "contact_lbl": "Contact",
-        "new_booking_btn": "➕ Make New Booking",
-        "my_bookings_title": "📋 My Bookings",
-        "refresh_status_btn": "🔄 Refresh Status",
-        "no_booking_found": "No bookings found for this mobile number.",
+        "new_booking_btn": "➕ New Booking",
+        "my_bookings_title": "My Bookings",
+        "refresh_status_btn": "🔄 Refresh",
+        "no_booking_found": "No bookings found for this number.",
         "status_lbl": "Status",
-        "profile_title": "👤 My Profile",
-        "no_photo_cap": "No profile photo uploaded yet.",
+        "profile_title": "Profile",
+        "no_photo_cap": "No photo added.",
         "name_lbl": "Name",
-        "phone_lbl": "Mobile Number",
+        "phone_lbl": "Mobile",
         "email_lbl": "Email",
         "rating_lbl": "Rating",
-        "rating_note": "Rating updates after trip completion",
-        "driver_panel_title": "🚕 Driver Panel",
+        "logout_btn": "Logout",
+        "driver_panel_title": "Driver Panel",
         "driver_login_btn": "Login",
-        "enter_pin": "Enter 4-Digit PIN",
+        "enter_pin": "4-Digit PIN",
         "invalid_pin_err": "Invalid mobile number or PIN.",
-        "expired_err": "Your ID/subscription has expired.",
-        "duty_status_lbl": "Change Duty Status",
-        "voice_test_btn": "🔊 Enable / Test Voice Alert",
-        "no_active_booking": "No active bookings right now.",
+        "expired_err": "ID/subscription expired.",
+        "duty_status_lbl": "Duty Status",
+        "voice_test_btn": "🔊 Test Voice Alert",
+        "no_active_booking": "No active bookings.",
         "accept_btn": "✅ Confirm Booking",
-        "picked_btn": "🚕 Passenger Picked (Start Ride)",
+        "picked_btn": "🚕 Passenger Picked",
         "complete_btn": "🏁 Trip Completed",
-        "forward_title": "Forward Booking to Partner Driver (Enter Vehicle No)",
-        "forward_btn": "🔁 Forward to Partner Driver",
-        "settings_title": "⚙️ Settings",
-        "voice_toggle": "🔔 Voice / Notification Alert (Speak when new booking arrives)",
-        "low_net_toggle": "📶 Low Network Banner Mode",
-        "terms_btn": "📜 Terms & Conditions",
-        "support_btn": "📞 Customer Support",
-        "terms_text": "Terms & Conditions: DevBhoomi Ride coordinates local and tourist cab bookings in Uttarakhand. Distances are estimated for mountain routes. Vehicles switch to On Ride once a passenger is picked up.",
-        "support_text": "Customer Support: For any booking or technical help, contact —",
+        "forward_title": "Forward to Partner Driver (Vehicle No)",
+        "forward_btn": "🔁 Forward Booking",
+        "settings_title": "Settings",
+        "voice_toggle": "Voice / Notification Alert",
+        "low_net_toggle": "Low Network Banner",
+        "terms_title": "Terms & Conditions",
+        "terms_text": "DevBhoomi Ride coordinates local and tourist cab bookings in Uttarakhand. Distances are estimated for mountain routes. Vehicles switch to On Ride once picked up.",
+        "support_title": "Customer Support",
+        "support_text": "Support Contact:",
     },
 }
 
@@ -333,6 +322,13 @@ DEFAULT_DRIVERS = [
 ]
 
 
+def clean_phone(val) -> str:
+    s = str(val or "").strip()
+    if s.endswith(".0"):
+        s = s[:-2]
+    return "".join(ch for ch in s if ch.isdigit())
+
+
 def sync_to_sheet(payload: dict) -> None:
     if not DB_URL.strip():
         return
@@ -399,15 +395,12 @@ if "settings" not in st.session_state:
     }
 if "logged_in_driver" not in st.session_state:
     st.session_state.logged_in_driver = None
-if "show_legal_modal" not in st.session_state:
-    st.session_state.show_legal_modal = None
 
 load_from_sheet()
 
-# --- Auto-restore login if user phone is saved in URL query params ---
-saved_u = str(st.query_params.get("u", "")).strip()
+saved_u = clean_phone(st.query_params.get("u", ""))
 if saved_u and st.session_state.screen == "login" and not st.session_state.get("manual_logout"):
-    matched_u = next((u for u in st.session_state.users if str(u.get("phone", "")).strip() == saved_u), None)
+    matched_u = next((u for u in st.session_state.users if clean_phone(u.get("phone", "")) == saved_u), None)
     if matched_u:
         st.session_state.passenger_user = {
             "name": str(matched_u.get("name", "")),
@@ -417,7 +410,8 @@ if saved_u and st.session_state.screen == "login" and not st.session_state.get("
         }
         if matched_u.get("lang") in ("hi", "en"):
             st.session_state.lang = matched_u["lang"]
-        st.session_state.screen = "home"
+        st.session_state.trip_substep = 1
+        st.session_state.screen = "book_trip"
 
 T = TEXT[st.session_state.lang]
 
@@ -462,9 +456,9 @@ def get_driver_by_vehicle(vehicle_no: str):
 
 
 def get_driver_by_phone(phone: str):
-    clean = phone.strip()
+    clean = clean_phone(phone)
     for d in st.session_state.drivers:
-        if str(d.get("phone", "")).strip() == clean:
+        if clean_phone(d.get("phone", "")) == clean:
             return d
     return None
 
@@ -497,9 +491,10 @@ def persist_state() -> None:
 
 
 def save_user_profile_to_sheet() -> None:
-    u_phone = st.session_state.passenger_user["phone"].strip()
+    u_phone = clean_phone(st.session_state.passenger_user["phone"])
     if not u_phone:
         return
+    st.session_state.passenger_user["phone"] = u_phone
     record = {
         "phone": u_phone,
         "name": st.session_state.passenger_user["name"].strip(),
@@ -509,7 +504,7 @@ def save_user_profile_to_sheet() -> None:
     }
     updated = False
     for i, u in enumerate(st.session_state.users):
-        if str(u.get("phone", "")).strip() == u_phone:
+        if clean_phone(u.get("phone", "")) == u_phone:
             st.session_state.users[i] = record
             updated = True
             break
@@ -521,7 +516,7 @@ def save_user_profile_to_sheet() -> None:
 
 
 # =====================================================================
-# FIRST SCREEN: ONLY LANGUAGE SELECT + MOBILE NUMBER + EMAIL + LOGIN
+# FIRST SCREEN: LANGUAGE + MOBILE NUMBER + EMAIL + CONTINUE
 # =====================================================================
 if st.session_state.screen == "login":
     st.markdown(
@@ -534,7 +529,7 @@ if st.session_state.screen == "login":
         unsafe_allow_html=True,
     )
 
-    st.markdown(f"### {T['choose_lang_label']}")
+    st.markdown(f"**{T['choose_lang_label']}**")
     lang_choice = st.radio(
         "first_lang_selector",
         ["हिंदी (देवनागरी)", "English"],
@@ -547,7 +542,7 @@ if st.session_state.screen == "login":
         st.session_state.lang = new_lang
         st.rerun()
 
-    st.markdown(f"### {T['enter_phone']}")
+    st.markdown(f"**{T['enter_phone']}**")
     p_phone = st.text_input(
         "login_phone",
         value=st.session_state.passenger_user["phone"],
@@ -555,7 +550,7 @@ if st.session_state.screen == "login":
         label_visibility="collapsed",
     )
 
-    st.markdown(f"### {T['enter_email']}")
+    st.markdown(f"**{T['enter_email']}**")
     p_email = st.text_input(
         "login_email",
         value=st.session_state.passenger_user["email"],
@@ -564,11 +559,11 @@ if st.session_state.screen == "login":
     )
 
     if st.button(T["login_next_btn"]):
-        if not p_phone.strip() or not p_email.strip():
+        clean_p = clean_phone(p_phone)
+        if not clean_p or not p_email.strip():
             st.error(T["login_err"])
         else:
-            clean_p = p_phone.strip()
-            existing_u = next((u for u in st.session_state.users if str(u.get("phone", "")).strip() == clean_p), None)
+            existing_u = next((u for u in st.session_state.users if clean_phone(u.get("phone", "")) == clean_p), None)
             if existing_u and str(existing_u.get("name", "")).strip():
                 st.session_state.passenger_user = {
                     "name": str(existing_u["name"]).strip(),
@@ -576,10 +571,9 @@ if st.session_state.screen == "login":
                     "email": p_email.strip(),
                     "photo_b64": str(existing_u.get("photo_b64", "")),
                 }
-                st.query_params["u"] = clean_p
-                st.session_state.manual_logout = False
                 save_user_profile_to_sheet()
-                st.session_state.screen = "home"
+                st.session_state.trip_substep = 1
+                st.session_state.screen = "book_trip"
             else:
                 st.session_state.passenger_user["phone"] = clean_p
                 st.session_state.passenger_user["email"] = p_email.strip()
@@ -587,11 +581,11 @@ if st.session_state.screen == "login":
             st.rerun()
 
 # =====================================================================
-# AFTER LOGIN: TOP BAR + SCREENS
+# CREATE PROFILE SCREEN (Right side ⚙️ Settings only)
 # =====================================================================
-else:
-    top_left, top_right = st.columns([4, 1])
-    with top_left:
+elif st.session_state.screen == "create_profile":
+    c_brand, c_gear = st.columns([5, 1])
+    with c_brand:
         st.markdown(
             f"""
             <div class="top-brand-card">
@@ -601,7 +595,66 @@ else:
             """,
             unsafe_allow_html=True,
         )
-    with top_right:
+    with c_gear:
+        if st.button(T["settings_btn"]):
+            st.session_state.screen = "settings"
+            st.rerun()
+
+    st.subheader(T["create_profile_title"])
+    st.markdown(f"**{T['choose_lang_label']}**")
+    p_lang_choice = st.radio(
+        "prof_lang_selector",
+        ["हिंदी (देवनागरी)", "English"],
+        index=0 if st.session_state.lang == "hi" else 1,
+        horizontal=True,
+        label_visibility="collapsed",
+    )
+    new_p_lang = "hi" if p_lang_choice == "हिंदी (देवनागरी)" else "en"
+    if new_p_lang != st.session_state.lang:
+        st.session_state.lang = new_p_lang
+        st.rerun()
+
+    st.markdown(f"**{T['enter_name']}**")
+    prof_name = st.text_input(
+        "prof_name",
+        value=st.session_state.passenger_user["name"],
+        placeholder="",
+        label_visibility="collapsed",
+    )
+
+    prof_photo = st.file_uploader(T["upload_photo"], type=["png", "jpg", "jpeg"], key="init_prof_photo")
+    if prof_photo is not None:
+        st.session_state.passenger_user["photo_b64"] = base64.b64encode(prof_photo.getvalue()).decode("utf-8")
+
+    if st.session_state.passenger_user["photo_b64"]:
+        st.image(base64.b64decode(st.session_state.passenger_user["photo_b64"]), width=110)
+
+    if st.button(T["save_profile_btn"]):
+        if not prof_name.strip():
+            st.error(T["name_err"])
+        else:
+            st.session_state.passenger_user["name"] = prof_name.strip()
+            save_user_profile_to_sheet()
+            st.session_state.trip_substep = 1
+            st.session_state.screen = "book_trip"
+            st.rerun()
+
+# =====================================================================
+# MAIN APP SCREENS (Clean Top Bar + 4 Tabs + ⚙️ Right Gear)
+# =====================================================================
+else:
+    c_brand, c_gear = st.columns([5, 1])
+    with c_brand:
+        st.markdown(
+            f"""
+            <div class="top-brand-card">
+                <h2>{T["brand_title"]}</h2>
+                <p>{T["brand_sub"]}</p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+    with c_gear:
         if st.button(T["settings_btn"]):
             st.session_state.screen = "settings"
             st.rerun()
@@ -609,96 +662,35 @@ else:
     if st.session_state.settings["low_network_mode"]:
         st.info(T["low_net_msg"])
 
-    # --- CREATE PROFILE ---
-    if st.session_state.screen == "create_profile":
-        st.subheader(T["create_profile_title"])
-
-        st.markdown(f"### {T['choose_lang_label']}")
-        p_lang_choice = st.radio(
-            "prof_lang_selector",
-            ["हिंदी (देवनागरी)", "English"],
-            index=0 if st.session_state.lang == "hi" else 1,
+    if st.session_state.screen != "settings":
+        tab_labels = [T["nav_book"], T["nav_my_bookings"], T["nav_profile"], T["nav_driver"]]
+        screen_to_idx = {"book_trip": 0, "my_bookings": 1, "profile": 2, "driver_panel": 3}
+        idx_to_screen = {0: "book_trip", 1: "my_bookings", 2: "profile", 3: "driver_panel"}
+        cur_idx = screen_to_idx.get(st.session_state.screen, 0)
+        picked_tab = st.radio(
+            "main_nav",
+            tab_labels,
+            index=cur_idx,
             horizontal=True,
             label_visibility="collapsed",
         )
-        new_p_lang = "hi" if p_lang_choice == "हिंदी (देवनागरी)" else "en"
-        if new_p_lang != st.session_state.lang:
-            st.session_state.lang = new_p_lang
+        next_scr = idx_to_screen[tab_labels.index(picked_tab)]
+        if next_scr != st.session_state.screen:
+            st.session_state.screen = next_scr
             st.rerun()
 
-        st.markdown(f"### {T['enter_name']}")
-        prof_name = st.text_input(
-            "prof_name",
-            value=st.session_state.passenger_user["name"],
-            placeholder="",
-            label_visibility="collapsed",
-        )
-
-        prof_photo = st.file_uploader(T["upload_photo"], type=["png", "jpg", "jpeg"], key="init_prof_photo")
-        if prof_photo is not None:
-            st.session_state.passenger_user["photo_b64"] = base64.b64encode(prof_photo.getvalue()).decode("utf-8")
-
-        if st.session_state.passenger_user["photo_b64"]:
-            st.image(base64.b64decode(st.session_state.passenger_user["photo_b64"]), width=120)
-
-        if st.button(T["save_profile_btn"]):
-            if not prof_name.strip():
-                st.error(T["name_err"])
-            else:
-                st.session_state.passenger_user["name"] = prof_name.strip()
-                save_user_profile_to_sheet()
-                st.session_state.screen = "home"
-                st.rerun()
-
-    # --- HOME MENU ---
-    elif st.session_state.screen == "home":
-        st.subheader(f"{T['welcome']}, {st.session_state.passenger_user['name'] or 'User'}")
-
-        if st.button(T["book_trip_btn"]):
-            st.session_state.trip_substep = 1
-            st.session_state.screen = "book_trip"
-            st.rerun()
-
-        if st.button(T["my_bookings_btn"]):
-            st.session_state.screen = "my_bookings"
-            st.rerun()
-
-        if st.button(T["profile_btn"]):
-            st.session_state.screen = "profile"
-            st.rerun()
-
-        if st.button(T["driver_panel_btn"]):
-            st.session_state.screen = "driver_panel"
-            st.rerun()
-
-        if st.button(T["logout_btn"]):
-            st.query_params.clear()
-            st.session_state.manual_logout = True
-            st.session_state.screen = "login"
-            st.rerun()
-
-    # --- BOOK YOUR TRIP ---
-    elif st.session_state.screen == "book_trip":
-        if st.button(T["main_menu_btn"]):
-            st.session_state.screen = "home"
-            st.rerun()
-
+    # --- 1. BOOK TRIP (Clean From -> To -> Distance -> Vehicle -> Confirm) ---
+    if st.session_state.screen == "book_trip":
         sub = st.session_state.trip_substep
         draft = st.session_state.draft_booking
-        st.subheader(f"{T['book_trip_title']} — {T['step_lbl']} {min(sub, 4)} / 4")
 
         if sub == 1:
-            st.markdown(f"### {T['trip_type_q']}")
+            st.markdown(f"**{T['trip_type_q']}**")
             trip_opts = [T["trip_opt_1"], T["trip_opt_2"]]
-            chosen_trip = st.radio(
-                "trip_type",
-                trip_opts,
-                index=draft["trip_type_idx"],
-                label_visibility="collapsed",
-            )
+            chosen_trip = st.radio("trip_type", trip_opts, index=draft["trip_type_idx"], label_visibility="collapsed")
             draft["trip_type_idx"] = trip_opts.index(chosen_trip)
 
-            st.markdown(f"### {T['veh_cat_q']}")
+            st.markdown(f"**{T['veh_cat_q']}**")
             draft["vehicle_type"] = st.radio(
                 "veh_cat",
                 ["4-Wheeler", "2-Wheeler"],
@@ -708,8 +700,7 @@ else:
             )
 
             if draft["trip_type_idx"] == 0:
-                st.markdown(f"### {T['spots_title']}")
-                st.write(" • ".join(HIGHLIGHT_SPOTS))
+                st.caption(" • ".join(HIGHLIGHT_SPOTS))
 
             if st.button(T["next_from_to"]):
                 st.session_state.trip_substep = 2
@@ -717,11 +708,11 @@ else:
 
         elif sub == 2:
             loc_list = list(LOCATIONS.keys())
-            st.markdown(f"### {T['from_q']}")
+            st.markdown(f"**{T['from_q']}**")
             p_idx = loc_list.index(draft["pickup"]) if draft["pickup"] in loc_list else 0
             draft["pickup"] = st.selectbox("from_loc", loc_list, index=p_idx, label_visibility="collapsed")
 
-            st.markdown(f"### {T['to_q']}")
+            st.markdown(f"**{T['to_q']}**")
             d_idx = loc_list.index(draft["drop"]) if draft["drop"] in loc_list else 3
             draft["drop"] = st.selectbox("to_loc", loc_list, index=d_idx, label_visibility="collapsed")
 
@@ -741,7 +732,7 @@ else:
                     st.rerun()
 
         elif sub == 3:
-            st.markdown(f"### {T['choose_veh_q']}")
+            st.markdown(f"**{T['choose_veh_q']}**")
             available_drivers = [
                 d
                 for d in st.session_state.drivers
@@ -749,7 +740,6 @@ else:
                 and str(d.get("category", "")).strip() == draft["vehicle_type"]
                 and is_driver_subscription_valid(d)
             ]
-
             if not available_drivers:
                 st.warning(T["no_veh_warn"])
                 if st.button(T["back_btn"]):
@@ -775,7 +765,7 @@ else:
 
         elif sub == 4:
             trip_label = T["trip_opt_1"] if draft["trip_type_idx"] == 0 else T["trip_opt_2"]
-            st.markdown(f"### {T['confirm_title']}")
+            st.subheader(T["confirm_title"])
             st.write(f"**{T['passenger_lbl']}:** {st.session_state.passenger_user['name']} ({st.session_state.passenger_user['phone']})")
             st.write(f"**{T['trip_lbl']}:** {trip_label}")
             st.write(f"**{T['route_lbl']}:** {draft['pickup']} ➔ {draft['drop']} (**~{draft['distance_km']} km**)")
@@ -822,32 +812,29 @@ else:
                 st.session_state.trip_substep = 1
                 st.rerun()
 
-    # --- MY BOOKINGS ---
+    # --- 2. MY BOOKINGS ---
     elif st.session_state.screen == "my_bookings":
-        if st.button(T["main_menu_btn"]):
-            st.session_state.screen = "home"
-            st.rerun()
-
         st.subheader(T["my_bookings_title"])
-        st.markdown(f"### {T['enter_phone']}")
+        st.markdown(f"**{T['enter_phone']}**")
         m_phone = st.text_input(
             "my_booking_phone",
             value=st.session_state.passenger_user["phone"],
             placeholder="",
             label_visibility="collapsed",
         )
-        st.session_state.passenger_user["phone"] = m_phone.strip()
+        st.session_state.passenger_user["phone"] = clean_phone(m_phone)
 
         if st.button(T["refresh_status_btn"]):
             st.session_state.sheet_loaded = False
             load_from_sheet()
             st.rerun()
 
-        if m_phone.strip():
+        if clean_phone(m_phone):
+            c_m = clean_phone(m_phone)
             found = [
                 b
                 for b in reversed(st.session_state.bookings)
-                if str(b.get("passenger_phone", "")).strip() == m_phone.strip()
+                if clean_phone(b.get("passenger_phone", "")) == c_m
             ]
             if not found:
                 st.warning(T["no_booking_found"])
@@ -859,12 +846,8 @@ else:
                     st.warning(b["notice"])
                 st.write(f"**{T['driver_lbl']}:** {b.get('driver_name', '')} ({b.get('vehicle_no', '')}) | **{T['contact_lbl']}:** {b.get('driver_phone', '')}")
 
-    # --- PROFILE ---
+    # --- 3. PROFILE (Photo upload + details + logout) ---
     elif st.session_state.screen == "profile":
-        if st.button(T["main_menu_btn"]):
-            st.session_state.screen = "home"
-            st.rerun()
-
         st.subheader(T["profile_title"])
         uploaded_photo = st.file_uploader(T["upload_photo"], type=["png", "jpg", "jpeg"], key="prof_page_up")
         if uploaded_photo is not None:
@@ -872,27 +855,29 @@ else:
             save_user_profile_to_sheet()
 
         if st.session_state.passenger_user["photo_b64"]:
-            st.image(base64.b64decode(st.session_state.passenger_user["photo_b64"]), width=140)
+            st.image(base64.b64decode(st.session_state.passenger_user["photo_b64"]), width=130)
         else:
             st.caption(T["no_photo_cap"])
 
         st.write(f"**{T['name_lbl']}:** {st.session_state.passenger_user['name'] or '—'}")
         st.write(f"**{T['phone_lbl']}:** {st.session_state.passenger_user['phone'] or '—'}")
         st.write(f"**{T['email_lbl']}:** {st.session_state.passenger_user['email'] or '—'}")
-        st.write(f"**{T['rating_lbl']}:** 4.8 ★ *({T['rating_note']})*")
+        st.write(f"**{T['rating_lbl']}:** 4.8 ★")
 
-    # --- DRIVER PANEL ---
-    elif st.session_state.screen == "driver_panel":
-        if st.button(T["main_menu_btn"]):
-            st.session_state.screen = "home"
+        if st.button(T["logout_btn"]):
+            st.query_params.clear()
+            st.session_state.manual_logout = True
+            st.session_state.screen = "login"
             st.rerun()
 
+    # --- 4. DRIVER PANEL ---
+    elif st.session_state.screen == "driver_panel":
         st.subheader(T["driver_panel_title"])
 
         if st.session_state.logged_in_driver is None:
-            st.markdown(f"### {T['enter_phone']}")
+            st.markdown(f"**{T['enter_phone']}**")
             l_phone = st.text_input("drv_l_phone", placeholder="", label_visibility="collapsed")
-            st.markdown(f"### {T['enter_pin']}")
+            st.markdown(f"**{T['enter_pin']}**")
             l_pin = st.text_input("drv_l_pin", type="password", placeholder="", label_visibility="collapsed")
 
             if st.button(T["driver_login_btn"]):
@@ -902,7 +887,7 @@ else:
                 elif not is_driver_subscription_valid(drv):
                     st.error(T["expired_err"])
                 else:
-                    st.session_state.logged_in_driver = str(drv["phone"]).strip()
+                    st.session_state.logged_in_driver = clean_phone(drv["phone"])
                     st.rerun()
         else:
             drv = get_driver_by_phone(st.session_state.logged_in_driver)
@@ -919,7 +904,7 @@ else:
                 persist_state()
 
             if drv.get("photo_b64"):
-                st.image(base64.b64decode(drv["photo_b64"]), width=140)
+                st.image(base64.b64decode(drv["photo_b64"]), width=130)
 
             st.markdown(f"### {drv['name']} ({drv['vehicle_no']})")
             st.write(f"**{drv['vehicle_name']}** | **{T['rating_lbl']}:** {drv.get('rating', '4.8 ★')} | **{T['status_lbl']}:** `{drv['status']}`")
@@ -941,7 +926,7 @@ else:
             my_bookings = [
                 b
                 for b in st.session_state.bookings
-                if str(b.get("driver_phone", "")).strip() == str(drv["phone"]).strip()
+                if clean_phone(b.get("driver_phone", "")) == clean_phone(drv["phone"])
                 and str(b.get("status", "")).strip() != "Trip Completed"
             ]
 
@@ -981,7 +966,7 @@ else:
                     partner = get_driver_by_vehicle(partner_veh)
                     if not partner:
                         st.error("Vehicle not found / गाड़ी नंबर नहीं मिला।")
-                    elif str(partner["phone"]).strip() == str(drv["phone"]).strip():
+                    elif clean_phone(partner["phone"]) == clean_phone(drv["phone"]):
                         st.error("Enter another partner driver's vehicle number.")
                     elif str(partner.get("status", "")).strip() != "Available" or not is_driver_subscription_valid(partner):
                         st.error("Partner driver is not Available.")
@@ -1006,14 +991,14 @@ else:
                 st.session_state.logged_in_driver = None
                 st.rerun()
 
-    # --- SETTINGS ---
+    # --- 5. SETTINGS (Language + Notification/Voice + Terms & Support) ---
     elif st.session_state.screen == "settings":
         if st.button(T["back_btn"]):
-            st.session_state.screen = "home" if st.session_state.passenger_user["name"] else "create_profile"
+            st.session_state.screen = "book_trip" if st.session_state.passenger_user["name"] else "create_profile"
             st.rerun()
 
         st.subheader(T["settings_title"])
-        st.markdown(f"### {T['choose_lang_label']}")
+        st.markdown(f"**{T['choose_lang_label']}**")
         s_lang_choice = st.radio(
             "settings_lang",
             ["हिंदी (देवनागरी)", "English"],
@@ -1037,19 +1022,9 @@ else:
             value=st.session_state.settings["low_network_mode"],
         )
 
-    # --- FOOTER ---
-    st.divider()
-    f1, f2 = st.columns(2)
-    with f1:
-        if st.button(T["terms_btn"]):
-            st.session_state.show_legal_modal = "terms" if st.session_state.show_legal_modal != "terms" else None
-            st.rerun()
-    with f2:
-        if st.button(T["support_btn"]):
-            st.session_state.show_legal_modal = "support" if st.session_state.show_legal_modal != "support" else None
-            st.rerun()
+        st.divider()
+        st.markdown(f"**{T['terms_title']}**")
+        st.caption(T["terms_text"])
 
-    if st.session_state.show_legal_modal == "terms":
-        st.info(T["terms_text"])
-    elif st.session_state.show_legal_modal == "support":
-        st.info(f"{T['support_text']} **{st.session_state.settings['support_phone']}**")
+        st.markdown(f"**{T['support_title']}**")
+        st.caption(f"{T['support_text']} {st.session_state.settings['support_phone']}")
